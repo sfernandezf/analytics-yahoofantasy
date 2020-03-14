@@ -1,0 +1,5 @@
+# Base project
+-r requirements.txt
+
+# python
+black==19.10b0

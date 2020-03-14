@@ -1,0 +1,10 @@
+{% load account %}{% load i18n %}{% autoescape off %}{% blocktrans %}Hello from the {{ site_name }} Camera Registry,
+
+You're receiving this e-mail because you created a new camera registry account. Thank you for participating in this program that will help keep our community safer.
+
+To confirm your email address is valid, please click on this link: {{ activate_url }}
+
+You will then be able to complete your registration.
+
+Thank you for your participation in the {{ site_name }}’s Camera Registry Program
+{% endblocktrans %}{% endautoescape %}

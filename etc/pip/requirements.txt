@@ -1,0 +1,28 @@
+# django
+Django==3.0.2
+
+#infrastructure
+django-environ==0.4.5
+django-split-settings==1.0.0
+
+# database
+psycopg2==2.8.4
+
+# api
+djangorestframework==3.11.0
+drf-yasg==1.17.0
+
+# authentication
+django-rest-auth==0.9.5
+django-allauth==0.41.0
+djangorestframework-simplejwt==4.4.0
+
+# tests
+pytest-django==3.8.0
+
+# others django
+django-timezone-field==4.0
+
+
+# yahoo
+yahoo_fantasy_api==2.0.1
