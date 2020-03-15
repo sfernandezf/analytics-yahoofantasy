@@ -131,3 +131,15 @@ dmypy.json
 .idea/
 
 src/core/settings/yahoo.json
+
+src/players/fixtures/
+
+src/teams/.DS_Store
+
+src/players/.DS_Store
+
+src/.DS_Store
+
+.DS_Store
+
+*.pyc
