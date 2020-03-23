@@ -1,13 +1,17 @@
 import csv
 import os
+import logging
 
 from django.conf import settings
 from django.core.management.base import BaseCommand
-from players.models import ZipsStats
+from players.models import BaseballPlayer, ZipsStats, \
+    SteamerStats, DepthChartsStats, AtcStats, TheBatStats, BaseballAveStats
 from teams.models import YahooTeam
 
 
 FILES_DIR = os.path.join(settings.BASE_DIR, "players", "fixtures")
+
+logger = logging.getLogger(__name__)
 
 BAT_CSV_MAP = {
         'playerid': 'remote_player_id',
@@ -74,7 +78,56 @@ STATS_CSV = [
         "mapping": PITCHING_CSV_MAP
 
     },
+    {
+        "name": "steamer",
+        "file_name": "steamer_bat.csv",
+        "model": SteamerStats,
+        "mapping": BAT_CSV_MAP
+    },
+    {
+        "name": "steamer",
+        "file_name": "steamer_pitch.csv",
+        "model": SteamerStats,
+        "mapping": PITCHING_CSV_MAP
 
+    },
+    {
+        "name": "depthcharts",
+        "file_name": "depthcharts_bat.csv",
+        "model": DepthChartsStats,
+        "mapping": BAT_CSV_MAP
+    },
+    {
+        "name": "depthcharts",
+        "file_name": "depthcharts_pitch.csv",
+        "model": DepthChartsStats,
+        "mapping": PITCHING_CSV_MAP
+    },
+    {
+        "name": "atc",
+        "file_name": "atc_bat.csv",
+        "model": AtcStats,
+        "mapping": BAT_CSV_MAP
+    },
+    {
+        "name": "atc",
+        "file_name": "atc_pitch.csv",
+        "model": AtcStats,
+        "mapping": PITCHING_CSV_MAP
+
+    },
+    {
+        "name": "thebat",
+        "file_name": "thebat_bat.csv",
+        "model": TheBatStats,
+        "mapping": BAT_CSV_MAP
+    },
+    {
+        "name": "thebat",
+        "file_name": "thebat_pitch.csv",
+        "model": TheBatStats,
+        "mapping": PITCHING_CSV_MAP
+    }
 ]
 
 class Command(BaseCommand):
@@ -82,16 +135,33 @@ class Command(BaseCommand):
 
     def handle(self, *args, **options):
         for stats in STATS_CSV:
+            logger.info('Open %s' % stats['file_name'])
             with open(os.path.join(FILES_DIR, stats['file_name']), encoding='utf-8-sig') as f:
                 csv_reader = csv.DictReader(f)
                 for row in csv_reader:
+                    # logger.info('Rows in %s are %s' % (stats['file_name'], str(row)))
                     names = row.pop('Name').split(' ')
-                    attr = { stats['mapping'][k]: v for k, v in row.items() }
-                    attr['first_name'] = names[0]
-                    attr['last_name'] = ' '.join(names[1:])
-                    obj, created = stats['model'].objects.update_or_create(
-                        remote_player_id=attr.pop('remote_player_id'),
-                        defaults=attr,
+                    player_atts = {
+                        'first_name': names[0],
+                        'last_name': ' '.join(names[1:]),
+                        'team':  row.pop('Team'),
+                        'remote_player_id': row.pop('playerid')
+                    }
+
+                    stat_attr = { stats['mapping'][k]: v for k, v in row.items()
+                             if k in stats['mapping']}
+                    player_obj, created = BaseballPlayer.objects.update_or_create(
+                        remote_player_id=player_atts.pop('remote_player_id'),
+                        defaults=player_atts,
+                    )
+                    player_stat, created = stats['model'].objects.update_or_create(
+                        baseballplayer=player_obj,
+                        defaults=stat_attr,
                     )
 
+        logger.info('Calculating player ave stats')
+        player_ave_stat = [
+            BaseballAveStats.objects.update_or_create(baseballplayer=player)
+            for player in BaseballPlayer.objects.all()
+        ]
         teams = [team.save() for team in YahooTeam.objects.all()]

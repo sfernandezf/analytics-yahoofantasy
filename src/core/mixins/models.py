@@ -73,12 +73,14 @@ class RemoteObjectModelMixin(models.Model):
             for child_remote in child_remotes:
                 atts = {
                     'id': child_remote,
+                    'parent_id': kwargs.get('remote_id'),
                     parent_field_name: self
                 }
 
                 if child_remote not in child_objects_list:
                     instance = model()
                 else:
+                    print(child_remote)
                     instance = model.objects.get(remote_id=child_remote)
                 instance.update_model_from_remote(**atts)
 
@@ -95,51 +97,3 @@ class RemoteObjectModelMixin(models.Model):
         kwargs['data'] = data
         remote = self.remote_manager.update(**kwargs)
         return remote
-
-
-class BaseStats(models.Model):
-    class Meta:
-        abstract = True
-
-    g = models.FloatField(_("Games"), blank=True, null=True)
-    pa = models.FloatField(_("Plate Appareances"), blank=True, null=True)
-    ab = models.FloatField(_("At Bat"), blank=True, null=True)
-    h = models.FloatField(_("Hits"), blank=True, null=True)
-    double = models.FloatField(_("Doubles"), blank=True, null=True)
-    triple = models.FloatField(_("Triples"), blank=True, null=True)
-    hr = models.FloatField(_("Home Run"), blank=True, null=True)
-    r = models.FloatField(_("Runs"), blank=True, null=True)
-    rbi = models.FloatField(_("Runs Bat in"), blank=True, null=True)
-    bb = models.FloatField(_("Base Balls"), blank=True, null=True)
-    so = models.FloatField(_("Strike Out"), blank=True, null=True)
-    hbp = models.FloatField(_("Hit By Pitch"), blank=True, null=True)
-    sb = models.FloatField(_("Stolen Base"), blank=True, null=True)
-    cs = models.FloatField(_("Caught Stolen"), blank=True, null=True)
-    avg = models.FloatField(_("Average"), blank=True, null=True)
-    obp = models.FloatField(_("Obp"), blank=True, null=True)
-    slg = models.FloatField(_("Slugging"), blank=True, null=True)
-    ops = models.FloatField(_("OPS"), blank=True, null=True)
-    woba = models.FloatField(_("wOBA"), blank=True, null=True)
-    wrcplus = models.FloatField(_("wRC+"), blank=True, null=True)
-    bsr = models.FloatField(_("BsR"), blank=True, null=True)
-    fld = models.FloatField(_("Fld"), blank=True, null=True)
-    off = models.FloatField(_("Off"), blank=True, null=True)
-    _def = models.FloatField(_("Def"), blank=True, null=True)
-    war = models.FloatField(_("WAR"), blank=True, null=True)
-    w = models.FloatField(_("Win"), blank=True, null=True)
-    l = models.FloatField(_("Loses"), blank=True, null=True)
-    era = models.FloatField(_("Earned Run Average"), blank=True, null=True)
-    gs = models.FloatField(_("Game Started"), blank=True, null=True)
-    ip = models.FloatField(_("Innings Pitched"), blank=True, null=True)
-    ha = models.FloatField(_("Hits Allowed"), blank=True, null=True)
-    er = models.FloatField(_("Earned Run"), blank=True, null=True)
-    hra = models.FloatField(_("Home Run Allowed"), blank=True, null=True)
-    soa = models.FloatField(_("Strike Out Allowed"), blank=True, null=True)
-    bba = models.FloatField(_("Base Balls Allowed"), blank=True, null=True)
-    whip = models.FloatField(_("WHIP"), blank=True, null=True)
-    k9 = models.FloatField(_("Strike Out in 9 Inns"), blank=True, null=True)
-    bb9 = models.FloatField(_("Base Balls in ( Inns"), blank=True, null=True)
-    fip = models.FloatField(_("FIP"), blank=True, null=True)
-    adp = models.FloatField(_("WAR"), blank=True, null=True)
-
-

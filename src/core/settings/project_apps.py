@@ -2,5 +2,7 @@
 INSTALLED_APPS += [
     "leagues",
     "teams",
-    "players"
+    "players",
+    "stats",
+    "results"
 ]

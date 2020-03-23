@@ -2,7 +2,8 @@ from django.db import models
 from django.utils.translation import ugettext_lazy as _
 from django.contrib.postgres.fields import JSONField
 
-from core.mixins.models import (BaseModel, RemoteObjectModelMixin, BaseStats)
+from core.mixins.models import (BaseModel, RemoteObjectModelMixin)
+from stats.models import BaseStats
 
 from leagues.models import YahooLeague
 from teams.models import YahooTeam
@@ -55,6 +56,7 @@ class YahooPlayer(RemoteObjectModelMixin, BaseModel):
     def full_name(self):
         return "{} {}".format(self.first_name, self.last_name)
 
+
 class BaseballPlayer(BaseModel):
     def __str__(self):
         return "{} {}".format(self.first_name, self.last_name)
@@ -72,15 +74,46 @@ class BaseballPlayer(BaseModel):
         _("Remote Player Id"), max_length=1024, blank=True, null=True, unique=True)
 
 
-class ZipsStats(BaseStats, BaseballPlayer):
+
+class BaseBaseballStat(BaseModel):
+    class Meta:
+        abstract = True
+
+    def __str__(self):
+        return "{} {}".format(
+            self.baseballplayer.first_name, self.baseballplayer.last_name)
+
+    baseballplayer = models.OneToOneField(
+        BaseballPlayer, verbose_name=_('Baseball Player'), unique=True,
+        on_delete=models.CASCADE)
+
+class ZipsStats(BaseStats, BaseBaseballStat):
     pass
 
 
-class SteamerStats(BaseStats, BaseballPlayer):
+class SteamerStats(BaseStats, BaseBaseballStat):
     pass
 
 
+class DepthChartsStats(BaseStats, BaseBaseballStat):
+    pass
 
 
+class AtcStats(BaseStats, BaseBaseballStat):
+    pass
 
 
+class TheBatStats(BaseStats, BaseBaseballStat):
+    pass
+
+
+class BaseballAveStats(BaseStats, BaseBaseballStat):
+    def save(self, *args, **kwargs):
+        average_stats = [ZipsStats, SteamerStats, DepthChartsStats, AtcStats, 
+                         TheBatStats]
+        for stat in self.stat_list:
+            stats = [getattr(getattr(self.baseballplayer, source._meta.model_name, object), stat, None) for source in average_stats]
+            stats = [i for i in stats if i]
+            average = sum(stats)/len(stats) if len(stats) > 0 else None
+            setattr(self, stat, average)
+        super().save(*args, **kwargs)

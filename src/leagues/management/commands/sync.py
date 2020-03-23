@@ -16,7 +16,9 @@ class Command(BaseCommand):
         for game in games:
             league = League(get_oauth(), '398.l.24668')
             team = Team(get_oauth(), '398.l.24668.t.12')
+            roster = team.roster(1,1)
             player_stats = league.player_stats(8762, req_type='season', season=2019)
             print(player_stats)
-            # roster = team.roster()
+            roster = team.roster()
             # game.update_model_from_remote()
+

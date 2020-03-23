@@ -2,7 +2,7 @@ from django.db import models
 from django.utils.translation import ugettext_lazy as _
 
 from core.mixins.models import BaseModel, RemoteObjectModelMixin
-from leagues.remotes import YahooLeagueRemote, YahooGameRemote
+from leagues.remotes import YahooLeagueRemote, YahooGameRemote, YahooWeeksRemote
 
 
 class YahooGame(RemoteObjectModelMixin, BaseModel):
@@ -36,7 +36,10 @@ class YahooLeague(RemoteObjectModelMixin, BaseModel):
     """
     def __str__(self):
         return "{}".format(self.name)
-    children = ['teams']
+    children = [
+        'weeks', 
+        # 'teams'
+    ]
     
     field_mapping = {
         'id': 'remote_id'
@@ -74,3 +77,25 @@ class YahooLeague(RemoteObjectModelMixin, BaseModel):
     def update_children_model_from_remote(self, **kwargs):
         kwargs['remote_id'] = self.remote_id
         super().update_children_model_from_remote(**kwargs)
+
+
+class YahooLeagueWeeks(RemoteObjectModelMixin, BaseModel):
+    def __str__(self):
+        return "{}".format(self.week_number)
+
+    field_mapping = {
+        'id': 'remote_id'
+    }
+    remote_manager = YahooWeeksRemote()
+
+    league = models.ForeignKey(
+        YahooLeague, verbose_name=_('Yahoo Game'), on_delete=models.CASCADE,
+        related_name='weeks')
+
+    week_number = models.IntegerField(_('Week Number'), blank=True, null=True)
+
+    start_date = models.DateField(_('Start Date'), blank=True, null=True)
+
+    end_date = models.DateField(_('End Date'), blank=True, null=True)
+
+    is_current_week = models.BooleanField(_('Is Current Week'), default=False)
