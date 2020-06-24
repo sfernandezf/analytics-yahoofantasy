@@ -32,6 +32,7 @@ class BaseStats(models.Model):
     off = models.FloatField(_("Off"), blank=True, null=True)
     _def = models.FloatField(_("Def"), blank=True, null=True)
     war = models.FloatField(_("WAR"), blank=True, null=True)
+    gap = models.FloatField(_("Games as Pitcher"), blank=True, null=True)
     w = models.FloatField(_("Win"), blank=True, null=True)
     l = models.FloatField(_("Loses"), blank=True, null=True)
     era = models.FloatField(_("Earned Run Average"), blank=True, null=True)
@@ -52,9 +53,9 @@ class BaseStats(models.Model):
     def stat_list(self):
         return ['g', 'pa', 'ab', 'h', 'double', 'triple', 'hr', 'r', 'rbi',
                 'bb', 'so',  'hbp', 'sb', 'cs', 'avg', 'obp', 'slg', 'ops',
-                'woba', 'wrcplus', 'bsr', 'fld', 'off', '_def', 'war', 'w', 'l',
-                'era', 'gs', 'ip', 'ha', 'er', 'hra', 'soa', 'bba', 'whip',
-                'k9', 'bb9', 'fip', 'adp']
+                'woba', 'wrcplus', 'bsr', 'fld', 'off', '_def', 'war', 'gap',
+                'w', 'l', 'era', 'gs', 'ip', 'ha', 'er', 'hra', 'soa', 'bba',
+                'whip', 'k9', 'bb9', 'fip', 'adp']
 
 
 class YahooStats(models.Model):

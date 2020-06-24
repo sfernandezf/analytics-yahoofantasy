@@ -5,6 +5,16 @@ from core.mixins.remotes import YahooBaseRemoteObjectMixin
 from core.utils import get_oauth
 
 
+class YahooAPILeague(League):
+    def matchups(self, week=None):
+        """Retrieve matchups data for current week
+
+        :return: Matchup details as key/value pairs
+        :rtype: dict
+        """
+        json = self.yhandler.get_scoreboard_raw(self.league_id, week)
+        return json
+
 class YahooGameRemote(YahooBaseRemoteObjectMixin):
     def __init__(self):
         super().__init__()
@@ -28,8 +38,8 @@ class YahooLeagueRemote(YahooBaseRemoteObjectMixin):
         super().__init__()
         self.children_map = {
             'weeks': 'get_weeks',
-            # 'teams': 'get_teams'
-
+            'teams': 'get_teams',
+            'matchups': 'get_matchups'
         }
 
     def get_remote_attrs(self, **kwargs):
@@ -57,6 +67,14 @@ class YahooLeagueRemote(YahooBaseRemoteObjectMixin):
         return ['%s_%s' % (kwargs['id'], i)
                 for i in range(int(start_week), int(end_week))]
 
+    def get_matchups(self, **kwargs):
+        league = League(get_oauth(), kwargs['id'])
+        start_week = league.settings()['start_week']
+        end_week = league.end_week()
+        return list(range(int(start_week), int(end_week)))
+
+
+
 
 class YahooWeeksRemote(YahooBaseRemoteObjectMixin):
     def __init__(self):
@@ -80,4 +98,5 @@ class YahooWeeksRemote(YahooBaseRemoteObjectMixin):
             'is_current_week': week_number == current_week
         }
         return super().get_remote_attrs(**kwargs)
+
 

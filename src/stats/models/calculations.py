@@ -1,4 +1,8 @@
+import logging
 from django.db import models
+
+
+logger = logging.getLogger(__name__)
 
 
 class StatsCalculatorMixin(models.Model):
@@ -114,17 +118,125 @@ class StatsCalculatorMixin(models.Model):
     def get_stat_so(self, *args, **kwargs):
         return self.get_general_stat(*args, **kwargs)
     
-    def get_stat_avg(self, *args, **kwargs):
+    def get_stat_obp(self, *args, **kwargs):
         stat_value = None
-        if kwargs['h'] and kwargs['ab']:
-            stat_value = round(kwargs['h']/kwargs['ab'], 3)
+        kwargs.pop('stat_name')
+        bb = kwargs['bb']
+        h = kwargs['h']
+        hbp = self.get_general_stat(**kwargs, stat_name='hbp')
+        pa = self.get_general_stat(**kwargs, stat_name='pa')
+        if all((h, bb, hbp, pa)):
+            stat_value = round((h + bb + hbp)/pa, 3)
         return stat_value
 
+    def get_stat_slg(self, *args, **kwargs):
+        stat_value = None
+        kwargs.pop('stat_name')
+        ab = kwargs['ab']
+        h = kwargs['h']
+        hr = kwargs['hr']
+        double = self.get_general_stat(**kwargs, stat_name='double')
+        triple = self.get_general_stat(**kwargs, stat_name='triple')
+        if all((ab, h, double, triple, hr)):
+            stat_value = round((h + 2*double + 3*triple + 4*hr)/ab, 3)
+        return stat_value
+
+    def get_stat_ops(self, *args, **kwargs):
+        stat_value = None
+        if all((kwargs['obp'], kwargs['slg'])):
+            stat_value = round(kwargs['obp'] + kwargs['slg'], 3)
+        return stat_value
+
+    def get_stat_nsb(self, *args, **kwargs):
+        stat_value = None
+        kwargs.pop('stat_name')
+        sb = self.get_general_stat(**kwargs, stat_name='sb')
+        cs = self.get_general_stat(**kwargs, stat_name='cs')
+        if all((sb, cs)):
+            stat_value = round(sb - cs, 0)
+        return stat_value
+
+    def get_stat_ip(self, *args, **kwargs):
+        return self.get_general_stat(*args, **kwargs)
+
+    def get_stat_era(self, *args, **kwargs):
+        stat_value = None
+        kwargs.pop('stat_name')
+        ip = kwargs['ip']
+        er = self.get_general_stat(**kwargs, stat_name='er')
+        if all((ip, er)):
+            stat_value = round(er*9/ip, 2)
+        return stat_value
+
+    def get_stat_whip(self, *args, **kwargs):
+        stat_value = None
+        kwargs.pop('stat_name')
+        ip = kwargs['ip']
+        ha = self.get_general_stat(**kwargs, stat_name='ha')
+        bba = self.get_general_stat(**kwargs, stat_name='bba')
+        if all((ip, ha, bba)):
+            stat_value = round((bba + ha)/ip, 2)
+        return stat_value
+
+    def get_stat_kbb(self, *args, **kwargs):
+        stat_value = None
+        kwargs.pop('stat_name')
+        soa = self.get_general_stat(**kwargs, stat_name='soa')
+        bba = self.get_general_stat(**kwargs, stat_name='bba')
+        if all((soa, bba)):
+            stat_value = round(soa/bba, 2)
+        return stat_value
+
+    def get_stat_k9(self, *args, **kwargs):
+        stat_value = None
+        kwargs.pop('stat_name')
+        ip = kwargs['ip']
+        soa = self.get_general_stat(**kwargs, stat_name='soa')
+        if all((soa, ip)):
+            stat_value = round(soa*9/ip, 2)
+        return stat_value
+
+    def get_stat_rapp(self, *args, **kwargs):
+        stat_value = None
+        kwargs.pop('stat_name')
+        gap = self.get_general_stat(**kwargs, stat_name='gap')
+        gs = self.get_general_stat(**kwargs, stat_name='gs')
+        if all((gap, gs)):
+            stat_value = round(gap - gs, 0)
+        return stat_value
+
+    def get_stat_h9(self, *args, **kwargs):
+        stat_value = None
+        kwargs.pop('stat_name')
+        ip = kwargs['ip']
+        ha = self.get_general_stat(**kwargs, stat_name='ha')
+        if all((ip, ha)):
+            stat_value = round(ha*9/ip, 3)
+        return stat_value
+
+    def get_stat_bb9(self, *args, **kwargs):
+        stat_value = None
+        kwargs.pop('stat_name')
+        ip = kwargs['ip']
+        bba = self.get_general_stat(**kwargs, stat_name='bba')
+        if all((ip, bba)):
+            stat_value = round(bba*9/ip, 3)
+        return stat_value
+
+
+
     def save(self, *args, **kwargs):
-        stats = ['ab', 'r', 'h', 'hr', 'rbi', 'bb', 'so', 'nsb', 'avg']
+        stats = ['ab', 'r', 'h', 'hr', 'rbi', 'bb', 'so', 'avg', 'obp', 'slg', 'ops', 'nsb', 'ip', 'era', 'whip', 'kbb', 'k9', 'rapp', 'h9', 'bb9', 'nsv']
         _kwargs = {
             'players': self.get_regular_player()
         }
+        print("{} {}".format(self.name, self.manager_nickname))
+        for key, value in _kwargs['players'].items():
+            for v in value:
+                if v['type'] != 'B':
+                    continue
+                print("{} {} {}".format( str(key), v['position'], round(v['pct']*100, 0)))
+        print("-------------------------------")
         for stat in stats:
             if callable(getattr(self, 'get_stat_{}'.format(stat), None)):
                 _kwargs['stat_name'] = stat

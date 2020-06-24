@@ -37,8 +37,9 @@ class YahooLeague(RemoteObjectModelMixin, BaseModel):
     def __str__(self):
         return "{}".format(self.name)
     children = [
-        'weeks', 
-        # 'teams'
+        'weeks',
+        'teams',
+        'matchups'
     ]
     
     field_mapping = {

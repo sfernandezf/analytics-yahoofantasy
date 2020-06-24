@@ -45,7 +45,7 @@ BAT_CSV_MAP = {
 PITCHING_CSV_MAP = {
     'playerid': 'remote_player_id',
     'Team': 'team',
-    'G': 'g',
+    'G': 'gap',
     'W': 'w',
     'L': 'l',
     'ERA': 'era',
