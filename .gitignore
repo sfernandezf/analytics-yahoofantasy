@@ -143,3 +143,10 @@ src/.DS_Store
 .DS_Store
 
 *.pyc
+*zappa_settings.json
+
+src/staticfiles/
+
+*secrets.json
+
+src/get_yahoo_oauth.py

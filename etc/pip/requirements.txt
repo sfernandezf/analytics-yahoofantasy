@@ -6,7 +6,7 @@ django-environ==0.4.5
 django-split-settings==1.0.0
 
 # database
-psycopg2==2.8.4
+psycopg2-binary==2.8.5
 
 # api
 djangorestframework==3.11.0
@@ -26,3 +26,12 @@ django-timezone-field==4.0
 
 # yahoo
 yahoo_fantasy_api==2.0.1
+baseball_id
+
+
+boto3
+django-storages==1.9.1
+
+
+
+django-json-widget==1.0.1

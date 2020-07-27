@@ -1,5 +1,7 @@
 import logging
 from django.db import models
+from django.contrib.postgres.fields import JSONField, ArrayField
+from django.utils.translation import ugettext_lazy as _
 
 
 logger = logging.getLogger(__name__)
@@ -21,15 +23,19 @@ class StatsCalculatorMixin(models.Model):
     class Meta:
         abstract=True
 
+    regular_player = JSONField(_('Regular Players'), default=dict, null=True, blank=True)
+    is_regular_player_auto = models.BooleanField(_('Is auto'), default=True)
+    bat_stat_order = models.CharField(_('Bat Stat Order'), max_length=512, null=True, blank=True)
+    pit_stat_order = models.CharField(_('Pit Stat Order'), max_length=512, null=True, blank=True)
+
     def get_regular_player(self):
+        sort_stat = '-player__auctionbaseballplayer__PTS'
         player_to_exclude = []
         player_list_position = {}
-
         position_rank = []
         for position in self.positions:
-            count_player = len(self.players\
-                .filter(
-                eligible_positions__contains=[{"position": position['name']}]))
+            count_player = len(self.yahoo_team.players.filter(
+                player__eligible_positions__contains=[{"position": position['name']}]))
             position_rank.append(
                 {
                     'name': position['name'],
@@ -40,23 +46,41 @@ class StatsCalculatorMixin(models.Model):
             )
         position_rank = sorted(position_rank, key=lambda pos: pos['count_player'])
 
+        ip = 0
+        pit_pct = 1
         for position in position_rank:
             position_pct = position['count']
-            players = self.players \
-                .filter(
-                eligible_positions__contains=[{"position": position['name']}]) \
+            players = self.yahoo_team.players.filter(
+                player__eligible_positions__contains=[{"position": position['name']}]) \
                 .exclude(id__in=player_to_exclude) \
-                .order_by('baseball_player__baseballavestats__adp')
+                .order_by(sort_stat)
+
+            if self.bat_stat_order and position['name'] not in ['RP', 'SP']:
+                bat_stat_order = str(self.bat_stat_order).split(',')
+                players_dict = {
+                    player.player.calculate_value(*bat_stat_order): player
+                    for player in players
+                }
+                players_dict = sorted(players_dict.items(), reverse=True)
+                players = [player[1] for player in players_dict]
+
             for player in players:
                 if position['name'] in ['RP', 'SP']:
-                    player_pct = 1
+                    if not player.player.baseballavestats.ip:
+                        continue
+                    player_pct = pit_pct
+                    ip += player.player.baseballavestats.ip *6 / 60
+                    if ip >= 40:
+                        pit_pct = 0
                 else:
                     if player in player_list_position:
                         player_ave_pct = 1 - sum([pos['pct'] for pos in
                                                   player_list_position[player]])
                     else:
                         player_ave_pct = 1
-                    player_time_pct = player_ave_pct * player.baseball_player.baseballavestats.g / 180
+                    if not player.player.baseballavestats.g:
+                        continue
+                    player_time_pct = player_ave_pct * player.player.baseballavestats.g / 62
                     if (position_pct - player_time_pct) > 0:
                         player_pct = player_ave_pct
                         position_pct -= player_time_pct
@@ -84,7 +108,7 @@ class StatsCalculatorMixin(models.Model):
         total_stat = 0
         for player, atts in kwargs['players'].items():
             try:
-                stat_value = getattr(player.baseball_player.baseballavestats, kwargs['stat_name'], None)
+                stat_value = getattr(player.player.baseballavestats, kwargs['stat_name'], None)
             except:
                 pass
             if not stat_value:
@@ -115,8 +139,27 @@ class StatsCalculatorMixin(models.Model):
     def get_stat_bb(self, *args, **kwargs):
         return self.get_general_stat(*args, **kwargs)
 
-    def get_stat_so(self, *args, **kwargs):
+    def get_stat_k(self, *args, **kwargs):
+        kwargs['stat_name'] = 'so'
         return self.get_general_stat(*args, **kwargs)
+
+    def get_stat_sv(self, *args, **kwargs):
+        return self.get_general_stat(*args, **kwargs)
+
+    def get_stat_hld(self, *args, **kwargs):
+        return self.get_general_stat(*args, **kwargs)
+
+    def get_stat_w(self, *args, **kwargs):
+        return self.get_general_stat(*args, **kwargs)
+
+    def get_stat_avg(self, *args, **kwargs):
+        stat_value = None
+        kwargs.pop('stat_name')
+        ab = kwargs['ab']
+        h = kwargs['h']
+        if all((h, ab)):
+            stat_value = round(h / ab, 3)
+        return stat_value
     
     def get_stat_obp(self, *args, **kwargs):
         stat_value = None
@@ -226,15 +269,27 @@ class StatsCalculatorMixin(models.Model):
 
 
     def save(self, *args, **kwargs):
-        stats = ['ab', 'r', 'h', 'hr', 'rbi', 'bb', 'so', 'avg', 'obp', 'slg', 'ops', 'nsb', 'ip', 'era', 'whip', 'kbb', 'k9', 'rapp', 'h9', 'bb9', 'nsv']
+        stats = ['ab', 'r', 'h', 'hr', 'rbi', 'bb', 'k', 'avg', 'obp', 'slg', 'ops', 'nsb', 'ip', 'era', 'whip', 'kbb', 'k9', 'rapp', 'h9', 'bb9', 'sv', 'hld', 'w']
+        if self.is_regular_player_auto:
+            players = self.get_regular_player()
+            self.regular_player = {}
+            for key, value in players.items():
+                value = [str(key.id)] + value
+                self.regular_player[str(key)] = value
+        else:
+            from players.models import BaseballPlayer, YahooPlayerLeague
+            players = {}
+            for key, value in self.regular_player.items():
+                instance = YahooPlayerLeague.objects.get(id=value[0])
+                players [instance] = value[1:]
         _kwargs = {
-            'players': self.get_regular_player()
+            'players': players
         }
-        print("{} {}".format(self.name, self.manager_nickname))
+        print("{}".format(self.yahoo_team.name))
         for key, value in _kwargs['players'].items():
             for v in value:
-                if v['type'] != 'B':
-                    continue
+                # if v['type'] != 'B':
+                #     continue
                 print("{} {} {}".format( str(key), v['position'], round(v['pct']*100, 0)))
         print("-------------------------------")
         for stat in stats:

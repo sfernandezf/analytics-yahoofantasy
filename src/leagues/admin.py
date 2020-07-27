@@ -1,6 +1,15 @@
 from django.contrib import admin
 
-from leagues.models import YahooLeague, YahooGame, YahooLeagueWeeks
+from leagues.models import YahooLeague, YahooGame, YahooLeagueWeeks, \
+    YahooMultiYearLeague, Year, YahooOauthCredentials
+
+
+class YahooLeagueAdmin(admin.ModelAdmin):
+    ordering = ['year', 'name']
+    list_display = ('name', 'year', 'current_week')
+    list_filter = (
+        'league', 'year'
+    )
 
 
 class YahooLeagueWeeksAdmin(admin.ModelAdmin):
@@ -11,7 +20,10 @@ class YahooLeagueWeeksAdmin(admin.ModelAdmin):
     )
 
 
+admin.site.register(YahooOauthCredentials)
+admin.site.register(Year)
 admin.site.register(YahooGame)
 admin.site.register(YahooLeague)
+admin.site.register(YahooMultiYearLeague)
 
 admin.site.register(YahooLeagueWeeks, YahooLeagueWeeksAdmin)

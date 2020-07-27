@@ -41,6 +41,8 @@ class RemoteObjectModelMixin(models.Model):
     remote_id = models.CharField(
         _("Remote Object Id"), max_length=1024, unique=True, null=True, blank=True)
 
+    def get_yahoo_credentials(self):
+        raise NotImplementedError
 
     def update_model_from_remote(self, **kwargs):
         """
@@ -48,6 +50,9 @@ class RemoteObjectModelMixin(models.Model):
         geattr(model1, 'model2', object), 'name', x)
         :return: remote object
         """
+        self.remote_manager.set_credentials(
+            kwargs['league'].get_yahoo_credentials()
+        )
         remote = self.remote_manager.get_remote_attrs(**kwargs)
         kwargs.update(remote)
         for field, value in kwargs.items():
@@ -60,7 +65,13 @@ class RemoteObjectModelMixin(models.Model):
         """
         :return:
         """
-        for child in self.children:
+        children = self.children
+        if 'allowed_children' in kwargs:
+            children = [
+                child for child in self.children
+                if child in kwargs['allowed_children']
+            ]
+        for child in children:
             model = getattr(getattr(self, child, object), 'model', None)
             if not model:
                 continue
@@ -80,7 +91,6 @@ class RemoteObjectModelMixin(models.Model):
                 if child_remote not in child_objects_list:
                     instance = model()
                 else:
-                    print(child_remote)
                     instance = model.objects.get(remote_id=child_remote)
                 instance.update_model_from_remote(**atts)
 

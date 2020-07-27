@@ -1,0 +1,112 @@
+{% extends 'layouts/base.html' %}
+
+{% block title %} Dashboard {% endblock title %}
+
+<!-- Specific CSS goes HERE -->
+{% block stylesheets %}{% endblock stylesheets %}
+
+{% block content %}
+    <!-- Header -->
+    <div class="header bg-gradient-primary pb-7 pt-2 pt-md-6">
+      <div class="container-fluid">
+        <div class="header-body">
+            <form class="form">
+                <div class="pl-lg-4">
+                  <div class="row">
+                    <div class="col-lg-3">
+                      <div class="form-group">
+                          <div class="input-group input-group-alternative">
+                            <select class="form-control">
+                              <option>All</option>
+                            </select>
+                          </div>
+                      </div>
+                    </div>
+                    <div class="col-lg-3">
+                      <div class="input-group input-group-alternative">
+                            <select class="form-control">
+                              <option>Active Week</option>
+                            </select>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+            </form>
+        </div>
+      </div>
+    </div>
+
+    <div class="container-fluid mt--7">
+
+         <!-- Table -->
+      {% for league in object_list %}
+      <div class="row" >
+        <div class="col">
+          <div class="card shadow">
+            <div class="card-header border-primary">
+              <h3 class="mb-0">{{ league.name }}</h3>
+            </div>
+            <div class="card-body">
+                <div class="pl-lg-4">
+                    <div class="row">
+                        {% for matchup in league.matchups_order %}
+                        <div class="col-xl-6 mb-xl-0">
+                      <div class="card bg-default shadow">
+                        <div class="table-responsive">
+                          <table class="table align-items-center table-dark table-flush">
+                              <thead class="thead-dark">
+                              <tr>
+                                <th scope="col">Team</th>
+                                <th scope="col">W</th>
+                                <th scope="col">L</th>
+                                <th scope="col">D</th>
+                              </tr>
+                            </thead>
+                            <tbody>
+                              <tr>
+                                <th scope="row">
+                                  <div class="media align-items-center">
+                                    <div class="media-body">
+                                      <span class="mb-0 text-sm">{{ matchup.home_team.name }}</span>
+                                    </div>
+                                  </div>
+                                </th>
+                                <td>{{ matchup.home_win }}</td>
+                                <td>{{ matchup.home_loss }}</td>
+                                <td>{{ matchup.home_draw }}</td>
+                              </tr>
+                              <tr>
+                                <th scope="row">
+                                  <div class="media align-items-center">
+                                    <div class="media-body">
+                                      <span class="mb-0 text-sm">{{ matchup.visitor_team.name }}</span>
+                                    </div>
+                                  </div>
+                                </th>
+                                <td>{{ matchup.visitor_win }}</td>
+                                <td>{{ matchup.visitor_loss }}</td>
+                                <td>{{ matchup.visitor_draw }}</td>
+                              </tr>
+                            </tbody>
+                          </table>
+                        </div>
+                      </div>
+                    </div>
+                        {% endfor %}
+                    </div>
+
+                </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      {% endfor %}
+
+      {% include "includes/footer.html" %}
+
+    </div>
+
+{% endblock content %}
+
+<!-- Specific JS goes HERE --> 
+{% block javascripts %}{% endblock javascripts %}

@@ -1,0 +1,129 @@
+{% extends 'layouts/base.html' %}
+
+{% block title %} Tables {% endblock title %}
+
+{% block content %}
+
+    <!-- Header -->
+    <div class="header bg-gradient-primary pb-7 pt-2 pt-md-6">
+      <div class="container-fluid">
+        <div class="header-body">
+            <form class="form">
+                <div class="pl-lg-4">
+                  <div class="row">
+                    <div class="col-lg-3">
+                      <div class="form-group">
+                          <div class="input-group input-group-alternative">
+                            <select class="form-control">
+                              <option>All</option>
+                            </select>
+                          </div>
+                      </div>
+                    </div>
+                    <div class="col-lg-3">
+                      <div class="input-group input-group-alternative">
+                            <select class="form-control">
+                              <option>All</option>
+                            </select>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+            </form>
+        </div>
+      </div>
+    </div>
+
+    <div class="container-fluid mt--9">
+
+      <!-- Table -->
+      <div class="row  mt-5">
+        <div class="col">
+          <div class="card bg-default shadow">
+            <div class="table-responsive">
+              <table class="table align-items-center table-dark table-flush">
+                <thead class="thead-dark">
+                  <tr>
+                      <th scope="col">Team</th>
+                      <th scope="col">League</th>
+                      <th scope="col">W</th>
+                      <th scope="col">D</th>
+                      <th scope="col">L</th>
+                      <th scope="col">R</th>
+                      <th scope="col">H</th>
+                      <th scope="col">HR</th>
+                      <th scope="col">RBI</th>
+                      <th scope="col">BB</th>
+                      <th scope="col">K</th>
+                      <th scope="col">AVG</th>
+                      <th scope="col">OBP</th>
+                      <th scope="col">SLG</th>
+                      <th scope="col">OPS</th>
+                      <th scope="col">NSB</th>
+                      <th scope="col">IP</th>
+                      <th scope="col">ERA</th>
+                      <th scope="col">WHIP</th>
+                      <th scope="col">K/BB</th>
+                      <th scope="col">K/9</th>
+                      <th scope="col">RAPP</th>
+                      <th scope="col">H/9</th>
+                      <th scope="col">BB/9</th>
+                      <th scope="col">QS</th>
+                      <th scope="col">NSV</th>
+                      <th scope="col">NSVH</th>
+                    <th scope="col"></th>
+                  </tr>
+                </thead>
+                <tbody>
+                {% for team in object_list %}
+                  <tr>
+                    <th scope="row">
+                      <div class="media align-items-center">
+                        <div class="media-body">
+                          <span class="mb-0 text-sm">{{ team.name }}</span>
+                        </div>
+                      </div>
+                    </th>
+                    <td>{{ team.league.name }}</td>
+                    <td>{{ team.w }}</td>
+                    <td>{{ team.d }}</td>
+                    <td>{{ team.l }}</td>
+                    <td>{{ team.r }}</td>
+                    <td>{{ team.h }}</td>
+                    <td>{{ team.hr }}</td>
+                    <td>{{ team.rbi }}</td>
+                    <td>{{ team.bb }}</td>
+                    <td>{{ team.so }}</td>
+                    <td>{{ team.avg }}</td>
+                    <td>{{ team.obp }}</td>
+                    <td>{{ team.slg }}</td>
+                    <td>{{ team.ops }}</td>
+                    <td>{{ team.nsb }}</td>
+                    <td>{{ team.ip }}</td>
+                    <td>{{ team.era }}</td>
+                    <td>{{ team.whip }}</td>
+                    <td>{{ team.kbb }}</td>
+                    <td>{{ team.k9 }}</td>
+                    <td>{{ team.rapp }}</td>
+                    <td>{{ team.h9 }}</td>
+                    <td>{{ team.bb9 }}</td>
+                    <td>{{ team.qs }}</td>
+                    <td>{{ team.nsv }}</td>
+                    <td>{{ team.nsvh }}</td>
+                  </tr>
+                {% endfor %}
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      {% include "includes/footer.html" %}
+
+    </div>
+
+{% endblock content %}
+
+<!-- Specific JS goes HERE --> 
+{% block javascripts %}{% endblock javascripts %}

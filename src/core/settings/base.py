@@ -34,13 +34,13 @@ SECRET_KEY = env("SECRET_KEY")
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = env("DEBUG", default=False)
 
-ALLOWED_HOSTS = env.list("ALLOWED_HOST", default=[])
+ALLOWED_HOSTS = env.list("ALLOWED_HOSTS", default=[])
 if ENVIRONMENT == "local":
-    ALLOWED_HOSTS += ["127.0.0.1", "localhost"]
+    ALLOWED_HOSTS += ["127.0.0.1", "localhost", ".ngrok.io"]
 
 
 # Application definition
-INSTALLED_APPS += [
+INSTALLED_APPS = [
     "django.contrib.admin",
     "django.contrib.auth",
     "django.contrib.contenttypes",
@@ -48,7 +48,14 @@ INSTALLED_APPS += [
     "django.contrib.messages",
     "django.contrib.staticfiles",
 
-    "django.contrib.postgres"
+    "django.contrib.postgres",
+    "django_json_widget",
+    "users",
+    "leagues",
+    "teams",
+    "players",
+    "stats",
+    "results"
 ]
 
 MIDDLEWARE = [
@@ -63,10 +70,16 @@ MIDDLEWARE = [
 
 ROOT_URLCONF = "core.urls"
 
+
 TEMPLATES = [
     {
         "BACKEND": "django.template.backends.django.DjangoTemplates",
-        "DIRS": [os.path.join("auth", "templates", "allauth"),],
+        "DIRS": [
+            os.path.join("auth", "templates", "allauth"),
+            os.path.join(BASE_DIR, "core/templates"),
+            os.path.join(BASE_DIR, "leagues/templates"),
+            os.path.join(BASE_DIR, "leagues/results")
+        ],
         "APP_DIRS": True,
         "OPTIONS": {
             "context_processors": [

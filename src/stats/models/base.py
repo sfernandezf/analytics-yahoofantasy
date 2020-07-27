@@ -48,6 +48,9 @@ class BaseStats(models.Model):
     bb9 = models.FloatField(_("Base Balls in ( Inns"), blank=True, null=True)
     fip = models.FloatField(_("FIP"), blank=True, null=True)
     adp = models.FloatField(_("WAR"), blank=True, null=True)
+    sv = models.FloatField(_("SV"), blank=True, null=True)
+    hld = models.FloatField(_("SV"), blank=True, null=True)
+    winp = models.FloatField(_("Winning Percentage"), blank=True, null=True)
 
     @property
     def stat_list(self):
@@ -55,7 +58,7 @@ class BaseStats(models.Model):
                 'bb', 'so',  'hbp', 'sb', 'cs', 'avg', 'obp', 'slg', 'ops',
                 'woba', 'wrcplus', 'bsr', 'fld', 'off', '_def', 'war', 'gap',
                 'w', 'l', 'era', 'gs', 'ip', 'ha', 'er', 'hra', 'soa', 'bba',
-                'whip', 'k9', 'bb9', 'fip', 'adp']
+                'whip', 'k9', 'bb9', 'fip', 'adp', 'sv', 'hld', 'winp']
 
 
 class YahooStats(models.Model):
@@ -80,6 +83,7 @@ class YahooStats(models.Model):
     sf = models.FloatField(_("Sacrifice Flys"), blank=True, null=True)
     sb = models.FloatField(_("Stolen Bases"), blank=True, null=True)
     cs = models.FloatField(_("Caught Stealing"), blank=True, null=True)
+    so = models.FloatField(_("Strike Out"), blank=True, null=True)
     bb = models.FloatField(_("Walks"), blank=True, null=True)
     ibb = models.FloatField(_("Intentional Walks"), blank=True, null=True)
     hbp = models.FloatField(_("Hit By Pitch"), blank=True, null=True)
@@ -149,6 +153,7 @@ class YahooStats(models.Model):
     qs = models.FloatField(_("Quality Starts"), blank=True, null=True)
     bsv = models.FloatField(_("Blown Saves"), blank=True, null=True)
     nsv = models.FloatField(_("Net Saves"), blank=True, null=True)
+    nsvh = models.FloatField(_("Net Saves or Holds"), blank=True, null=True)
 
     @property
     def stat_list(self):
@@ -160,4 +165,182 @@ class YahooStats(models.Model):
                 'er', 'hra', 'bba', 'ibba', 'hbpa', 'ka', 'wp', 'blk', 'sba',
                 'gidpa', 'svop', 'hld', 'k9', 'kbb', 'tba', 'ip', 'pc', 'doublea',
                 'triplea', 'rw', 'rl', 'pick', 'rapp', 'obpa', 'winp', 'singlea',
-                'h9', 'bb9', 'nh', 'pg', 'svp', 'ira', 'qs', 'bsv', 'nsv']
+                'h9', 'bb9', 'nh', 'pg', 'svp', 'ira', 'qs', 'bsv', 'nsv', 'so']
+
+    league_stats = [
+        {
+            'stat': 'r',
+            'names': ['R'],
+            'yahoo_id': 7,
+            'comparator': '>'
+        },
+        {
+            'stat': 'h',
+            'names': ['H'],
+            'yahoo_id': 8,
+            'comparator': '>'
+        },
+        {
+            'stat': 'hr',
+            'names': ['HR'],
+            'yahoo_id': 12,
+            'comparator': '>'
+        },
+        {
+            'stat': 'rbi',
+            'names': ['RBI'],
+            'yahoo_id': 13,
+            'comparator': '>'
+        },
+        {
+            'stat': 'bb',
+            'names': ['BB'],
+            'yahoo_id': 18,
+            'comparator': '>'
+        },
+        {
+            'stat': 'so',
+            'names': ['K'],
+            'yahoo_id': 21,
+            'comparator': '<'
+        },
+        {
+            'stat': 'avg',
+            'names': ['AVG'],
+            'yahoo_id': 3,
+            'comparator': '>'
+        },
+        {
+            'stat': 'obp',
+            'names': ['OBP'],
+            'yahoo_id': 4,
+            'comparator': '>'
+        },
+        {
+            'stat': 'slg',
+            'names': ['SLG'],
+            'yahoo_id': 5,
+            'comparator': '>'
+        },
+        {
+            'stat': 'ops',
+            'names': ['OPS'],
+            'yahoo_id': 55,
+            'comparator': '>'
+        },
+        {
+            'stat': 'nsb',
+            'names': ['NSB'],
+            'yahoo_id': 62,
+            'comparator': '>'
+        },
+        {
+            'stat': 'ip',
+            'names': ['IP'],
+            'yahoo_id': 50,
+            'comparator': '>'
+        },
+        {
+            'stat': 'era',
+            'names': ['ERA'],
+            'yahoo_id': 26,
+            'comparator': '<'
+        },
+        {
+            'stat': 'whip',
+            'names': ['WHIP'],
+            'yahoo_id': 27,
+            'comparator': '<'
+        },
+        {
+            'stat': 'kbb',
+            'names': ['K/BB'],
+            'yahoo_id': 56,
+            'comparator': '>'
+        },
+        {
+            'stat': 'k9',
+            'names': ['K/9'],
+            'yahoo_id': 57,
+            'comparator': '>'
+        },
+        {
+            'stat': 'rapp',
+            'names': ['RAPP'],
+            'yahoo_id': 73,
+            'comparator': '>'
+        },
+        {
+            'stat': 'h9',
+            'names': ['H/9'],
+            'yahoo_id': 77,
+            'comparator': '<'
+        },
+        {
+            'stat': 'bb9',
+            'names': ['BB/9'],
+            'yahoo_id': 78,
+            'comparator': '<'
+        },
+        {
+            'stat': 'qs',
+            'names': ['QS'],
+            'yahoo_id': 83,
+            'comparator': '>'
+        },
+        {
+            'stat': 'nsv',
+            'names': ['NSV'],
+            'yahoo_id': 85,
+            'comparator': '>'
+        },
+        {
+            'stat': 'nsvh',
+            'names': ['NSVH'],
+            'yahoo_id': 90,
+            'comparator': '>'
+        },
+        {
+            'stat': 'pa',
+            'names': ['PA'],
+            'yahoo_id': 65,
+            'comparator': '>'
+        },
+        {
+            'stat': 'winp',
+            'names': ['WIN%'],
+            'yahoo_id': 75,
+            'comparator': '>'
+        }
+    ]
+
+
+class AuctionStats(models.Model):
+    class Meta:
+        abstract = True
+
+    mAVG = models.FloatField(_("mAVG"), blank=True, null=True)
+    mRBI = models.FloatField(_("mRBI"), blank=True, null=True)
+    mR = models.FloatField(_("mR"), blank=True, null=True)
+    mHR = models.FloatField(_("mHR"), blank=True, null=True)
+    mOBP = models.FloatField(_("mOBP"), blank=True, null=True)
+    mSLG = models.FloatField(_("mSLG"), blank=True, null=True)
+    mOPS = models.FloatField(_("mOPS"), blank=True, null=True)
+    mH = models.FloatField(_("mH"), blank=True, null=True)
+    mSO = models.FloatField(_("mSO"), blank=True, null=True)
+    mBB = models.FloatField(_("mBB"), blank=True, null=True)
+    mSBCS = models.FloatField(_("mSBCS"), blank=True, null=True)
+    mSV = models.FloatField(_("mSV"), blank=True, null=True)
+    mERA = models.FloatField(_("mERA"), blank=True, null=True)
+    mWHIP = models.FloatField(_("mWHIP"), blank=True, null=True)
+    mK9 = models.FloatField(_("mK9"), blank=True, null=True)
+    mBB9 = models.FloatField(_("mBB9"), blank=True, null=True)
+    mKBB = models.FloatField(_("mKBB"), blank=True, null=True)
+    mIP = models.FloatField(_("mIP"), blank=True, null=True)
+    mHLD = models.FloatField(_("mHLD"), blank=True, null=True)
+    mQS = models.FloatField(_("mQS"), blank=True, null=True)
+    mSVHLD = models.FloatField(_("mSVHLD"), blank=True, null=True)
+
+    PTS = models.FloatField(_("PTS"), blank=True, null=True)
+    aPOS = models.FloatField(_("aPOS"), blank=True, null=True)
+    Dollars = models.FloatField(_("Dollars"), blank=True, null=True)

@@ -1,0 +1,62 @@
+{% extends 'layouts/base.html' %}
+
+{% block title %} Tables {% endblock title %}
+
+{% block content %}
+
+    <!-- Header -->
+    <div class="header bg-gradient-primary pb-6 pt-5 pt-md-8">
+    </div>
+
+    <div class="container-fluid mt--9">
+
+      <!-- Table -->
+      {% for league in object_list %}
+          <div class="row  mt-5">
+            <div class="col">
+              <div class="card bg-default shadow">
+                <div class="card-header bg-transparent border-0">
+                  <h3 class="text-white mb-0">{{ league.name  }}</h3>
+                </div>
+                <div class="table-responsive">
+                  <table class="table align-items-center table-dark table-flush">
+                    <thead class="thead-dark">
+                      <tr>
+                        <th scope="col">Team</th>
+                        <th scope="col">Wins</th>
+                        <th scope="col">Drawes</th>
+                        <th scope="col">Loss</th>
+                        <th scope="col"></th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                    {% for team in league.teams_order %}
+                      <tr>
+                        <th scope="row">
+                          <div class="media align-items-center">
+                            <div class="media-body">
+                              <span class="mb-0 text-sm">{{ team.name }}</span>
+                            </div>
+                          </div>
+                        </th>
+                        <td>{{ team.w }}</td>
+                        <td>{{ team.d }}</td>
+                        <td>{{ team.l }}</td>
+                      </tr>
+                    {% endfor %}
+                    </tbody>
+                  </table>
+                </div>
+              </div>
+            </div>
+          </div>
+      {% endfor %}
+
+      {% include "includes/footer.html" %}
+
+    </div>
+
+{% endblock content %}
+
+<!-- Specific JS goes HERE --> 
+{% block javascripts %}{% endblock javascripts %}
