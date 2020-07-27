@@ -64,8 +64,8 @@ def on_yahoo_result_updated_update_teams_wins(instance, **kwargs):
                 'visitor_draw', 'visitor_loss'),
         skip_new=False
     )
-    if not is_changed:
-        return
+    # if not is_changed:
+    #     return
 
     home_team = instance.home_team
     visitor_team = instance.visitor_team

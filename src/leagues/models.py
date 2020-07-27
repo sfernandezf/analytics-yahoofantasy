@@ -13,7 +13,7 @@ class YahooOauthCredentials(BaseModel):
     name = models.CharField(_('Name'), max_length=64)
     consumer_key = models.CharField(_('Consumer Key'), max_length=1024)
     consumer_secret = models.CharField(_('Consumer Secret'), max_length=1024)
-    access_token = models.CharField(_('Access Token'), max_length=1024)
+    access_token = models.CharField(_('Access Token'), max_length=8192)
     refresh_token = models.CharField(_('Refresh Token'), max_length=1024)
     token_time = models.FloatField(_('Token Time'))
     token_type = models.CharField(
@@ -185,12 +185,22 @@ class YahooMultiYearLeague(BaseModel):
     leagues = models.ManyToManyField(
         'leagues.YahooLeague', verbose_name=_('Leagues')
     )
+    is_active = models.BooleanField(_('Is Active'), default=True)
+    domain = models.CharField(
+        _('Domain'), max_length=512, null=True, blank=True)
 
     @property
     def teams_order(self):
         teams = self.teams.order_by('-total_win')
         return teams
 
+    @property
+    def matchups_order(self):
+        from results.models import YahooMatchup
+        matchups = YahooMatchup.objects.filter(
+            week__is_current_week=True, league__in=self.leagues.all()
+        )
+        return matchups
 
 class YahooLeagueWeeks(RemoteObjectModelMixin, BaseModel):
     def __str__(self):
