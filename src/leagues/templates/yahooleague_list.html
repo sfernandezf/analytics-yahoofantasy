@@ -24,8 +24,9 @@
                       <tr>
                         <th scope="col">Team</th>
                         <th scope="col">Wins</th>
-                        <th scope="col">Drawes</th>
+                        <th scope="col">Draws</th>
                         <th scope="col">Loss</th>
+                          <th scope="col">PCT</th>
                         <th scope="col"></th>
                       </tr>
                     </thead>
@@ -42,6 +43,7 @@
                         <td>{{ team.w }}</td>
                         <td>{{ team.d }}</td>
                         <td>{{ team.l }}</td>
+                        <td>{{ team.pct }}</td>
                       </tr>
                     {% endfor %}
                     </tbody>

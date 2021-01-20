@@ -168,7 +168,7 @@ class YahooLeague(RemoteObjectModelMixin, BaseModel):
 
     @property
     def teams_order(self):
-        teams = self.teams.order_by('-total_win')
+        teams = self.teams.order_by('-w_pct')
         return teams
 
     @property
@@ -191,7 +191,7 @@ class YahooMultiYearLeague(BaseModel):
 
     @property
     def teams_order(self):
-        teams = self.teams.order_by('-total_win')
+        teams = self.teams.order_by('-w_pct')
         return teams
 
     @property

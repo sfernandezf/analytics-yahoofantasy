@@ -16,8 +16,8 @@ class StatsCalculatorMixin(models.Model):
         {'name': '1B', 'count': 1, 'type': 'B'},
         {'name': 'OF', 'count': 3, 'type': 'B'},
         {'name': 'Util', 'count': 2, 'type': 'B'},
+        {'name': 'SP', 'count': 10, 'type': 'P'},
         {'name': 'RP', 'count': 10, 'type': 'P'},
-        {'name': 'SP', 'count': 10, 'type': 'P'}
     ]
 
     class Meta:
@@ -35,7 +35,8 @@ class StatsCalculatorMixin(models.Model):
         position_rank = []
         for position in self.positions:
             count_player = len(self.yahoo_team.players.filter(
-                player__eligible_positions__contains=[{"position": position['name']}]))
+                player__eligible_positions__contains=[{"position": position['name']}])
+            )
             position_rank.append(
                 {
                     'name': position['name'],
@@ -51,9 +52,8 @@ class StatsCalculatorMixin(models.Model):
         for position in position_rank:
             position_pct = position['count']
             players = self.yahoo_team.players.filter(
-                player__eligible_positions__contains=[{"position": position['name']}]) \
-                .exclude(id__in=player_to_exclude) \
-                .order_by(sort_stat)
+                player__eligible_positions__contains=[{"position": position['name']}]
+            ).exclude(id__in=player_to_exclude).order_by(sort_stat)
 
             if self.bat_stat_order and position['name'] not in ['RP', 'SP']:
                 bat_stat_order = str(self.bat_stat_order).split(',')
@@ -69,18 +69,19 @@ class StatsCalculatorMixin(models.Model):
                     if not player.player.baseballavestats.ip:
                         continue
                     player_pct = pit_pct
-                    ip += player.player.baseballavestats.ip *6 / 60
-                    if ip >= 40:
+                    ip += player.player.baseballavestats.ip * 6 / 162
+                    if ip >= 60:
                         pit_pct = 0
                 else:
                     if player in player_list_position:
-                        player_ave_pct = 1 - sum([pos['pct'] for pos in
-                                                  player_list_position[player]])
+                        player_ave_pct = 1 - sum(
+                            [pos['pct'] for pos in player_list_position[player]]
+                        )
                     else:
                         player_ave_pct = 1
                     if not player.player.baseballavestats.g:
                         continue
-                    player_time_pct = player_ave_pct * player.player.baseballavestats.g / 62
+                    player_time_pct = player_ave_pct * player.player.baseballavestats.g / 162
                     if (position_pct - player_time_pct) > 0:
                         player_pct = player_ave_pct
                         position_pct -= player_time_pct
@@ -108,7 +109,9 @@ class StatsCalculatorMixin(models.Model):
         total_stat = 0
         for player, atts in kwargs['players'].items():
             try:
-                stat_value = getattr(player.player.baseballavestats, kwargs['stat_name'], None)
+                stat_value = getattr(
+                    player.player.baseballavestats, kwargs['stat_name'], None
+                )
             except:
                 pass
             if not stat_value:
@@ -120,6 +123,24 @@ class StatsCalculatorMixin(models.Model):
             return None
         return round(total_stat, kwargs.get('round_value', 0)) if total_stat else total_stat
 
+    def get_auction_stat(self, *args, **kwargs):
+        total_stat = 0
+        for player, atts in kwargs['players'].items():
+            stat_value = None
+            try:
+                stat_value = getattr(
+                    player.player.auctionbaseballplayer, kwargs['stat_name'], None
+                )
+            except:
+                pass
+            if not stat_value:
+                continue
+            player_pct = sum([att['pct'] for att in atts])
+            total_stat += stat_value * player_pct
+
+        if not total_stat or total_stat == 0:
+            return None
+        return round(total_stat, kwargs.get('round_value', 0)) if total_stat else total_stat
 
     def get_stat_ab(self, *args, **kwargs):
         return self.get_general_stat(*args, **kwargs)
@@ -149,7 +170,7 @@ class StatsCalculatorMixin(models.Model):
     def get_stat_hld(self, *args, **kwargs):
         return self.get_general_stat(*args, **kwargs)
 
-    def get_stat_w(self, *args, **kwargs):
+    def get_stat_qs(self, *args, **kwargs):
         return self.get_general_stat(*args, **kwargs)
 
     def get_stat_avg(self, *args, **kwargs):
@@ -266,10 +287,18 @@ class StatsCalculatorMixin(models.Model):
             stat_value = round(bba*9/ip, 3)
         return stat_value
 
-
-
     def save(self, *args, **kwargs):
-        stats = ['ab', 'r', 'h', 'hr', 'rbi', 'bb', 'k', 'avg', 'obp', 'slg', 'ops', 'nsb', 'ip', 'era', 'whip', 'kbb', 'k9', 'rapp', 'h9', 'bb9', 'sv', 'hld', 'w']
+        stats = [
+            'ab', 'r', 'h', 'hr', 'rbi', 'bb', 'k', 'avg', 'obp', 'slg', 'ops',
+            'nsb', 'ip', 'era', 'whip', 'kbb', 'k9', 'rapp', 'h9', 'bb9', 'sv',
+            'hld', 'qs'
+        ]
+        auction_stats = [
+            'mR', 'mH', 'mHR', 'mRBI', 'mBB', 'mSO', 'mAVG', 'mOBP', 'mSLG',
+            'mOPS', 'mSBCS',
+            'mIP', 'mERA', 'mWHIP', 'mKBB', 'mK9', 'mBB9', 'mHLD', 'mQS',
+            'mSVHLD', 'mSV', 'PTS'
+        ]
         if self.is_regular_player_auto:
             players = self.get_regular_player()
             self.regular_player = {}
@@ -285,17 +314,28 @@ class StatsCalculatorMixin(models.Model):
         _kwargs = {
             'players': players
         }
-        print("{}".format(self.yahoo_team.name))
+        # print("{}".format(self.yahoo_team.name))
         for key, value in _kwargs['players'].items():
             for v in value:
-                # if v['type'] != 'B':
-                #     continue
-                print("{} {} {}".format( str(key), v['position'], round(v['pct']*100, 0)))
-        print("-------------------------------")
+                if v['type'] != 'B':
+                    continue
+                # print(
+                #     "{} {} {}".format(
+                #         str(key), v['position'], round(v['pct'] * 100, 0)
+                #     )
+                # )
+        # print("-------------------------------")
         for stat in stats:
             if callable(getattr(self, 'get_stat_{}'.format(stat), None)):
                 _kwargs['stat_name'] = stat
                 ret = getattr(self, 'get_stat_{}'.format(stat))(**_kwargs)
                 _kwargs[stat] = ret
                 setattr(self, stat, ret)
+
+        for stat in auction_stats:
+            _kwargs['stat_name'] = stat
+            ret = self.get_auction_stat(**_kwargs)
+            _kwargs[stat] = ret
+            setattr(self, stat, ret)
+
         return super().save(*args, **kwargs)

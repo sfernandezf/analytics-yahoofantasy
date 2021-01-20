@@ -16,7 +16,10 @@ class YahooTeamLeagueForecastAdmin(JSONFieldWidgetAdminMixin, admin.ModelAdmin):
     list_display = (
         'yahoo_team', 'total_win', 'total_loss', 'total_draw', 'avg' ,'r', 'h',
         'hr', 'rbi', 'bb','k','obp', 'slg', 'ops', 'nsb', 'ip', 'era', 'whip',
-        'kbb', 'k9', 'bb9', 'h9', 'rapp', 'sv', 'hld', 'w'
+        'kbb', 'k9', 'bb9', 'h9', 'rapp', 'sv', 'hld', 'mR', 'mH',
+        'mHR', 'mRBI', 'mBB', 'mSO', 'mAVG', 'mOBP', 'mSLG', 'mOPS', 'mSBCS',
+        'mIP', 'mERA', 'mWHIP', 'mKBB', 'mK9', 'mBB9', 'mHLD', 'mQS', 'mSVHLD',
+        'mSV',
     )
     list_filter = ('yahoo_team__league',)
 

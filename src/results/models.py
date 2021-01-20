@@ -89,10 +89,18 @@ class YahooMatchup(MatchupMixin, RemoteObjectModelMixin, BaseModel):
                     remote_id=matchup['visitor_team']),
                 'week': YahooLeagueWeeks.objects.get(
                     week_number=matchup['week'], league=kwargs['league']),
-                'league': kwargs['league']
+                'league': kwargs['league'],
+            }
+            default_atts = {
+                'home_win': matchup['home_win'],
+                'home_loss': matchup['home_loss'],
+                'home_draw': matchup['home_draw'],
+                'visitor_win': matchup['visitor_win'],
+                'visitor_loss': matchup['visitor_loss'],
+                'visitor_draw': matchup['visitor_draw'],
             }
             matchup_instance, _ = YahooMatchup.objects.update_or_create(
-                   **att
+                   **att, defaults=default_atts
             )
 
             # Update Stats
@@ -126,7 +134,7 @@ class YahooMatchup(MatchupMixin, RemoteObjectModelMixin, BaseModel):
 
     def __convert_stat(self, stat):
         try:
-            return float(stat)
+            return float(stat) if stat else None
         except ValueError:
             return None
 

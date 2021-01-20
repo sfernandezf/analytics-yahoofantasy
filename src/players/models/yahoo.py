@@ -29,7 +29,8 @@ class YahooPlayerLeague(RemoteObjectModelMixin, BaseModel):
 
     team = models.ForeignKey(
         YahooTeam, verbose_name=_('Yahoo Team'), on_delete=models.CASCADE,
-        related_name='players')
+        related_name='players'
+    )
 
     editorial_team_full_name = models.CharField(
         _("Professional Team Name"), max_length=1024, blank=True, null=True)

@@ -5,7 +5,7 @@ from teams.models import YahooTeam, YahooMultiLeagueTeam
 
 
 class TeamViews(ListView):
-    queryset = YahooTeam.objects.all().order_by('-total_win')
+    queryset = YahooTeam.objects.all().order_by('-w_pct')
     template_name = "yahooteamstats_list.html"
 
     def get_queryset(self):
@@ -23,7 +23,7 @@ class TeamViews(ListView):
         for object in self.queryset:
             multi_teams.append(object)
         for object in YahooMultiLeagueTeam.objects.filter(
-                league__domain=subdomain, league__is_active=True).order_by('-total_win'):
+                league__domain=subdomain, league__is_active=True).order_by('-w_pct'):
             multi_teams.append(object)
         context['multi_teams'] = multi_teams
         return context

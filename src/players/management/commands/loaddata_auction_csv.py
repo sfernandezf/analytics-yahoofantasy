@@ -50,12 +50,17 @@ class Command(BaseCommand):
                     'team': row.pop('Team'),
                 }
 
+                if player_atts['first_name'] == 'Alec':
+                    print(player_atts['first_name'], player_atts['last_name'])
+
                 yahoo_id = utils.get_yahoo_player(
                     None,
                     first_name=player_atts['first_name'],
                     last_name=player_atts['last_name']
                 )
-                if not yahoo_id: continue
+                if not yahoo_id:
+                    print(player_atts['first_name'], player_atts['last_name'])
+                    continue
                 stat_attr = {
                     stat: utils.get_stat_auction(row.get(stat))
                     for stat in STATS

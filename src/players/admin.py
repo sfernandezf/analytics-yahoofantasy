@@ -16,6 +16,10 @@ class YahooPlayerLeagueAdmin(admin.ModelAdmin):
     search_fields = ['player__first_name', 'player__last_name']
 
 
+class YahooLeaguesInline(admin.TabularInline):
+    model = YahooPlayerLeague
+
+
 class BaseballPlayerAdmin(admin.ModelAdmin):
     list_display = ('__str__', 'team')
     list_filter = (
@@ -23,6 +27,8 @@ class BaseballPlayerAdmin(admin.ModelAdmin):
         'leagues__team'
     )
     search_fields = ['first_name', 'last_name']
+    # raw_id_fields = ('leagues',)
+    inlines = [YahooLeaguesInline]
 #
 #
 class PlayerAvailable(admin.SimpleListFilter):
@@ -39,14 +45,14 @@ class PlayerAvailable(admin.SimpleListFilter):
         value = self.value()
         if value in ['True', 'False']:
             value = value == 'True'
-            return queryset.filter(
-                baseballplayer__yahoo_player__isnull=value)
+            return queryset.filter(baseballplayer__leagues__isnull=value)
         return queryset
 
 
 class IsPitcherFilter(admin.SimpleListFilter):
     title = 'Is Pitcherr'
     parameter_name = 'is_pitcher'
+    stat_name = 'h'
 
     def lookups(self, request, model_admin):
         return (
@@ -58,14 +64,14 @@ class IsPitcherFilter(admin.SimpleListFilter):
         value = self.value()
         if value in ['True', 'False']:
             value = value == 'True'
-            return queryset.filter(
-                h__isnull=value)
+            return queryset.filter(**{f'{self.stat_name}__isnull': value})
         return queryset
 
 
 class IsRegularPlyaer(admin.SimpleListFilter):
     title = 'Is Regular'
     parameter_name = 'is_regular'
+    stat_name = 'pa'
 
     def lookups(self, request, model_admin):
         return (
@@ -77,12 +83,15 @@ class IsRegularPlyaer(admin.SimpleListFilter):
         value = self.value()
         if value in ['True', 'False']:
             if value == 'True':
-                return queryset.filter(
-                    pa__gt=330)
+                return queryset.filter(**{f'{self.stat_name}__gt': 330})
             else:
-                return queryset.filter(
-                    pa__lte=330)
+                return queryset.filter(**{f'{self.stat_name}__lte': 330})
         return queryset
+
+
+class YahooLeaguesInline2(admin.TabularInline):
+    model = YahooPlayerLeague
+    fk_name = 'player__auctionbaseballplayer'
 
 
 class BaseStatsAdmin(admin.ModelAdmin):
@@ -97,6 +106,7 @@ class BaseStatsAdmin(admin.ModelAdmin):
         IsRegularPlyaer
     )
     search_fields = ['baseballplayer__first_name', 'baseballplayer__last_name']
+    # inlines = [YahooLeaguesInline2]
 
 
 class ZipsStatsAdmin(BaseStatsAdmin):
@@ -123,11 +133,22 @@ class BaseballAveStatsAdmin(BaseStatsAdmin):
     pass
 
 
+class AuctionIsPitcherFilter(IsPitcherFilter):
+    stat_name = 'mH'
+
+
 class AuctionBaseballPlayerAdmin(BaseStatsAdmin):
     list_display = ('__str__', ) + (
         'mAVG', 'mRBI', 'mR', 'mHR', 'mOBP', 'mSLG', 'mOPS', 'mH', 'mSO', 'mBB',
         'mSBCS', 'mSV', 'mERA', 'mWHIP', 'mK9', 'mBB9', 'mKBB', 'mIP', 'mHLD',
         'mQS', 'mSVHLD', 'PTS', 'aPOS', 'Dollars'
+    )
+    list_filter = (
+        'baseballplayer__team',
+        'baseballplayer__leagues__team',
+        PlayerAvailable,
+        AuctionIsPitcherFilter,
+        IsRegularPlyaer
     )
 
 

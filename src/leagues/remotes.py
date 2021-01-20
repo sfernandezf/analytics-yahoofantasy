@@ -10,9 +10,9 @@ class YahooLeagueRemote(YahooBaseRemoteObjectMixin):
     def __init__(self):
         super().__init__()
         self.children_map = {
-            'weeks': 'get_weeks',
+            # 'weeks': 'get_weeks',
             'teams': 'get_teams',
-            'matchups': 'get_matchups'
+            # 'matchups': 'get_matchups'
         }
 
     def get_remote_attrs(self, **kwargs):
@@ -54,8 +54,10 @@ class YahooLeagueRemote(YahooBaseRemoteObjectMixin):
         league = League(self.get_oauth(), kwargs['id'])
         start_week = league.settings()['start_week']
         end_week = league.end_week()
-        return ['%s_%s' % (kwargs['id'], i)
-                for i in range(int(start_week), int(end_week))]
+        return [
+            '%s_%s' % (kwargs['id'], i)
+            for i in range(int(start_week), int(end_week) + 1)
+        ]
 
     def get_matchups(self, **kwargs):
         league = League(self.get_oauth(), kwargs['id'])

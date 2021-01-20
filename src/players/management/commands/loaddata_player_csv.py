@@ -73,21 +73,21 @@ PITCHING_CSV_MAP = {
 }
 
 STATS_CSV = [
-    {
-        "name": "zips",
-        "file_name": "zips_bat.csv",
-        "model": ZipsStats,
-        "mapping": BAT_CSV_MAP,
-        'stats': 'bat'
-    },
-    {
-        "name": "zips",
-        "file_name": "zips_pitch.csv",
-        "model": ZipsStats,
-        "mapping": PITCHING_CSV_MAP,
-        'stats': 'pit'
-
-    },
+    # {
+    #     "name": "zips",
+    #     "file_name": "zips_bat.csv",
+    #     "model": ZipsStats,
+    #     "mapping": BAT_CSV_MAP,
+    #     'stats': 'bat'
+    # },
+    # {
+    #     "name": "zips",
+    #     "file_name": "zips_pitch.csv",
+    #     "model": ZipsStats,
+    #     "mapping": PITCHING_CSV_MAP,
+    #     'stats': 'pit'
+    #
+    # },
     {
         "name": "steamer",
         "file_name": "steamer_bat.csv",
@@ -146,13 +146,13 @@ STATS_CSV = [
         "mapping": PITCHING_CSV_MAP,
         'stats': 'pit'
     },
-    {
-        "name": "auction",
-        "file_name": "auction.csv",
-        "model": TheBatStats,
-        "mapping": None,
-        'stats': None
-    },
+    # {
+    #     "name": "auction",
+    #     "file_name": "auction.csv",
+    #     "model": TheBatStats,
+    #     "mapping": None,
+    #     'stats': None
+    # },
 
 ]
 
@@ -188,8 +188,10 @@ class Command(BaseCommand):
                     last_name=player_atts['last_name']
                 )
                 if not yahoo_id: continue
-                stat_attr = { stats['mapping'][k]: v for k, v in row.items()
-                         if k in stats['mapping']}
+                stat_attr = {
+                    stats['mapping'][k]: v for k, v in row.items()
+                    if k in stats['mapping']
+                }
                 player_obj, created = BaseballPlayer.objects.update_or_create(
                     remote_player_id=yahoo_id,
                     defaults=player_atts,

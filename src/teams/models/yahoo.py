@@ -1,9 +1,10 @@
 from django.db import models
+from django.contrib.postgres.fields import JSONField
 from django.utils.translation import ugettext_lazy as _
 
 from core.mixins.models import BaseModel, RemoteObjectModelMixin
 from leagues.models import YahooLeague, YahooMultiYearLeague
-from stats.models import StatsCalculatorMixin
+from stats.models import StatsCalculatorMixin, YahooStats
 from teams.remotes import YahooTeamRemote
 
 from .mixins import TeamResultsMixin
@@ -56,10 +57,18 @@ class YahooTeam(TeamResultsMixin, RemoteObjectModelMixin, BaseModel):
                 continue
             parent_field_name = str(getattr(
                 getattr(self, child, object), 'field', None).name)
-            child_objects = getattr(self, child, []).all().values('remote_id')
+            child_objects = {
+                i.remote_id: i
+                for i in getattr(self, child, []).all()
+            }
             child_remotes = self.remote_manager.get_children(child, **kwargs)
-            child_objects_list = [k['remote_id'] for k in child_objects]
 
+            # Remove
+            for remote_id, instance in child_objects.items():
+                if remote_id not in child_remotes:
+                    instance.delete()
+
+            # Adding
             for child_remote in child_remotes:
                 atts = {
                     'id': child_remote,
@@ -67,7 +76,7 @@ class YahooTeam(TeamResultsMixin, RemoteObjectModelMixin, BaseModel):
                     parent_field_name: self
                 }
 
-                if child_remote not in child_objects_list:
+                if child_remote not in child_objects.keys():
                     instance = model()
                 else:
                     instances = model.objects.filter(remote_id=child_remote)
@@ -106,7 +115,10 @@ class YahooTeam(TeamResultsMixin, RemoteObjectModelMixin, BaseModel):
 class YahooTeamLeagueForecast(TeamResultsMixin, StatsCalculatorMixin, BaseModel):
     yahoo_team = models.OneToOneField(
         YahooTeam, verbose_name=_('Yahoo Team'), on_delete=models.CASCADE,
-        related_name='forecast_team', limit_choices_to={'league__is_active': True})
+        related_name='forecast_team', limit_choices_to={'league__is_active': True},
+        null=True, blank=True
+    )
+    stats_results = JSONField(default=dict)
 
     def get_players(self):
         return self.yahoo_team.players.objects
@@ -128,3 +140,75 @@ class YahooMultiLeagueTeam(TeamResultsMixin, BaseModel):
         YahooTeam, verbose_name=_('Teams'), related_name= 'multi_league_teams'
     )
 
+
+def update_results(team, rival_team, stat, w, l, d, stats_results):
+    home_team_stat = getattr(team, stat['stat'], None)
+    rival_team_stat = getattr(rival_team, stat['stat'], None)
+    if home_team_stat is None or rival_team_stat is None:
+        return w, l, d, stats_results
+    if stat['comparator'] == '>':
+        if home_team_stat > rival_team_stat:
+            w += 1
+            stats_results[stat['stat']]['w'] += 1
+        elif home_team_stat < rival_team_stat:
+            l += 1
+            stats_results[stat['stat']]['l'] += 1
+        elif home_team_stat == rival_team_stat:
+            d += 1
+            stats_results[stat['stat']]['d'] += 1
+    elif stat['comparator'] == '<':
+        if home_team_stat > rival_team_stat:
+            l += 1
+            stats_results[stat['stat']]['l'] += 1
+        elif home_team_stat < rival_team_stat:
+            w += 1
+            stats_results[stat['stat']]['w'] += 1
+        elif home_team_stat == rival_team_stat:
+            d += 1
+            stats_results[stat['stat']]['d'] += 1
+    return w, l, d, stats_results
+
+def update_team_forecast(**kwargs):
+    teams = YahooTeamLeagueForecast.objects.all()
+    leagues = set()
+    for team in teams:
+        leagues.add(team.yahoo_team.league)
+        team.save()
+
+    stat_map = {
+        i['yahoo_id']: i for i in YahooStats.league_stats
+    }
+    for league in leagues:
+        for yahoo_team in league.teams.all():
+            if not hasattr(yahoo_team, 'forecast_team'):
+                continue
+            team = yahoo_team.forecast_team
+            team.total_win, team.total_loss, team.total_draw = 0, 0, 0
+
+            # stats = league.stats
+            # stats_results = {
+            #     stat_map[stat['id']]['stat']: {'w': 0, 'l': 0, 'd': 0}
+            #     for stat in stats
+            # }
+            stats = YahooStats.auction_stats
+            stats_results = {
+                stat['stat']: {'w': 0, 'l': 0, 'd': 0}
+                for stat in stats
+            }
+
+            # for matchup in team.yahoo_team.matchups_as_home.all():
+            for rival_team in league.teams.exclude(id=yahoo_team.id):
+                # visitor_team = matchup.visitor_team.forecast_team
+                w, l, d = 0, 0, 0
+                for stat in stats:
+                    # stat = stat_map.get(stat['id'])
+                    w, l, d, stats_results = update_results(
+                        team, rival_team.forecast_team, stat, w, l, d,
+                        stats_results
+                    )
+                team.total_win += w
+                team.total_loss += l
+                team.total_draw += d
+            team.stats_results = stats_results
+            team.save()
+    return

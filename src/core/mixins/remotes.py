@@ -48,18 +48,8 @@ class YahooBaseRemoteObjectMixin(BaseRemoteObjectMixin):
         if not self.credentials:
             return None
 
-        oauth = self.credentials_cache.get(str(self.credentials.id))
-
-        if oauth and oauth.token_is_valid():
-            return oauth
-
-        if not oauth:
-            oauth = CustomOauth(**self.credentials.oauth_dict)
-
-        if not oauth.token_is_valid():
-            oauth.refresh_access_token()
-
-        self.credentials_cache[str(self.credentials.id)] = oauth
+        oauth = CustomOauth(**self.credentials.oauth_dict)
+        oauth.refresh_access_token()
         return oauth
 
 

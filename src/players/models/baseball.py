@@ -87,8 +87,9 @@ class TheBatStats(BaseStats, BaseBaseballStat):
 
 class BaseballAveStats(BaseStats, BaseBaseballStat):
     def save(self, *args, **kwargs):
-        average_stats = [ZipsStats, SteamerStats, DepthChartsStats, AtcStats,
-                         TheBatStats]
+        average_stats = [
+            SteamerStats, DepthChartsStats, AtcStats, TheBatStats
+        ]
         for stat in self.stat_list:
             stats = [getattr(
                 getattr(self.baseballplayer, source._meta.model_name, object),

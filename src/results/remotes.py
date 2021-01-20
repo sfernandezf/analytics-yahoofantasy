@@ -18,10 +18,26 @@ class YahooMatchupsRemote(YahooBaseRemoteObjectMixin):
         for key, data in matchups.items():
             if not isinstance(data, dict):
                 continue
-            self.attrs.append( {
+
+            home_team = data['matchup']['0']['teams']['0']['team'][0][0]['team_key']
+            visitor_team = data['matchup']['0']['teams']['1']['team'][0][0]['team_key']
+            home_win, home_loss, visitor_win, visitor_loss, draws = 0, 0, 0, 0, 0
+            for stat in data['matchup'].get('stat_winners', []):
+                if not 'stat_winner' in stat:
+                    continue
+                if stat['stat_winner'].get('is_tied') == 1:
+                    draws +=1
+                elif stat['stat_winner'].get('winner_team_key') == home_team:
+                    home_win += 1
+                    visitor_loss += 1
+                elif stat['stat_winner'].get('winner_team_key') == visitor_team:
+                    visitor_win += 1
+                    home_loss += 1
+
+            self.attrs.append({
                 'remote_id': kwargs['id'],
-                'home_team': data['matchup']['0']['teams']['0']['team'][0][0]['team_key'],
-                'visitor_team': data['matchup']['0']['teams']['1']['team'][0][0]['team_key'],
+                'home_team': home_team,
+                'visitor_team': visitor_team,
                 'home_team_stats': {
                    stat['stat']['stat_id']: stat['stat']['value']
                     for stat in data['matchup']['0']['teams']['0']['team'][1]['team_stats']['stats']
@@ -30,6 +46,13 @@ class YahooMatchupsRemote(YahooBaseRemoteObjectMixin):
                     stat['stat']['stat_id']: stat['stat']['value']
                     for stat in data['matchup']['0']['teams']['1']['team'][1]['team_stats']['stats']
                 },
-                'week': int(data['matchup']['week'])
+                'week': int(data['matchup']['week']),
+                'home_win': home_win,
+                'home_loss': home_loss,
+                'home_draw': draws,
+                'visitor_win': visitor_win,
+                'visitor_loss': visitor_loss,
+                'visitor_draw': draws,
             })
+
         return super().get_remote_attrs(**kwargs)

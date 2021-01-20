@@ -314,33 +314,125 @@ class YahooStats(models.Model):
         }
     ]
 
+    auction_stats = [
+        {
+            'stat': 'mR',
+            'comparator': '>'
+        },
+        {
+            'stat': 'mH',
+            'comparator': '>'
+        },
+        {
+            'stat': 'mHR',
+            'comparator': '>'
+        },
+        {
+            'stat': 'mRBI',
+            'comparator': '>'
+        },
+        {
+            'stat': 'mBB',
+            'comparator': '>'
+        },
+        {
+            'stat': 'mSO',
+            'comparator': '<'
+        },
+        {
+            'stat': 'mAVG',
+            'comparator': '>'
+        },
+        {
+            'stat': 'mOBP',
+            'comparator': '>'
+        },
+        {
+            'stat': 'mSLG',
+            'comparator': '>'
+        },
+        {
+            'stat': 'mOPS',
+            'comparator': '>'
+        },
+        {
+            'stat': 'mSBCS',
+            'comparator': '>'
+        },
+        {
+            'stat': 'mIP',
+            'comparator': '>'
+        },
+        {
+            'stat': 'mERA',
+            'comparator': '<'
+        },
+        {
+            'stat': 'mWHIP',
+            'comparator': '<'
+        },
+        {
+            'stat': 'mKBB',
+            'comparator': '>'
+        },
+        {
+            'stat': 'mK9',
+            'comparator': '>'
+        },
+        {
+            'stat': 'mBB9',
+            'comparator': '<'
+        },
+        {
+            'stat': 'mHLD',
+            'comparator': '>'
+        },
+        {
+            'stat': 'mQS',
+            'comparator': '>'
+        },
+        {
+            'stat': 'mSVHLD',
+            'comparator': '>'
+        },
+        {
+            'stat': 'mSV',
+            'comparator': '>'
+        },
+        {
+            'stat': 'mWHIP',
+            'comparator': '<'
+        },
+    ]
+
 
 class AuctionStats(models.Model):
     class Meta:
         abstract = True
 
-    mAVG = models.FloatField(_("mAVG"), blank=True, null=True)
-    mRBI = models.FloatField(_("mRBI"), blank=True, null=True)
+    # Batting
     mR = models.FloatField(_("mR"), blank=True, null=True)
+    mH = models.FloatField(_("mH"), blank=True, null=True)
     mHR = models.FloatField(_("mHR"), blank=True, null=True)
+    mRBI = models.FloatField(_("mRBI"), blank=True, null=True)
+    mBB = models.FloatField(_("mBB"), blank=True, null=True)
+    mSO = models.FloatField(_("mSO"), blank=True, null=True)
+    mAVG = models.FloatField(_("mAVG"), blank=True, null=True)
     mOBP = models.FloatField(_("mOBP"), blank=True, null=True)
     mSLG = models.FloatField(_("mSLG"), blank=True, null=True)
     mOPS = models.FloatField(_("mOPS"), blank=True, null=True)
-    mH = models.FloatField(_("mH"), blank=True, null=True)
-    mSO = models.FloatField(_("mSO"), blank=True, null=True)
-    mBB = models.FloatField(_("mBB"), blank=True, null=True)
     mSBCS = models.FloatField(_("mSBCS"), blank=True, null=True)
-    mSV = models.FloatField(_("mSV"), blank=True, null=True)
+    # Pitching
+    mIP = models.FloatField(_("mIP"), blank=True, null=True)
     mERA = models.FloatField(_("mERA"), blank=True, null=True)
     mWHIP = models.FloatField(_("mWHIP"), blank=True, null=True)
+    mKBB = models.FloatField(_("mKBB"), blank=True, null=True)
     mK9 = models.FloatField(_("mK9"), blank=True, null=True)
     mBB9 = models.FloatField(_("mBB9"), blank=True, null=True)
-    mKBB = models.FloatField(_("mKBB"), blank=True, null=True)
-    mIP = models.FloatField(_("mIP"), blank=True, null=True)
     mHLD = models.FloatField(_("mHLD"), blank=True, null=True)
     mQS = models.FloatField(_("mQS"), blank=True, null=True)
     mSVHLD = models.FloatField(_("mSVHLD"), blank=True, null=True)
-
+    mSV = models.FloatField(_("mSV"), blank=True, null=True)
     PTS = models.FloatField(_("PTS"), blank=True, null=True)
     aPOS = models.FloatField(_("aPOS"), blank=True, null=True)
     Dollars = models.FloatField(_("Dollars"), blank=True, null=True)
