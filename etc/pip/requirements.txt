@@ -9,7 +9,7 @@ django-split-settings==1.0.0
 psycopg2-binary==2.8.5
 
 # api
-djangorestframework==3.11.0
+djangorestframework==3.11.2
 drf-yasg==1.17.0
 
 # authentication
