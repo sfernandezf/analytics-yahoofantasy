@@ -3,7 +3,7 @@ from django.contrib import admin
 from core.admin import JSONFieldWidgetAdminMixin
 
 from teams.models import (
-    YahooTeam, YahooTeamLeagueForecast, YahooMultiLeagueTeam
+    YahooTeam, YahooTeamLeagueForecast, YahooMultiLeagueTeam, YahooRotoTeam
 )
 
 
@@ -32,6 +32,16 @@ class YahooMultiLeagueTeamAdmin(admin.ModelAdmin):
     filter_horizontal = ("teams",)
 
 
+class YahooRotoTeamAdmin(admin.ModelAdmin):
+    list_display = (
+        'team', 'total_points', 'avg', 'r', 'h',
+        'hr', 'rbi', 'bb', 'k', 'obp', 'slg', 'ops', 'nsb', 'ip', 'era', 'whip',
+        'kbb', 'k9', 'bb9', 'h9', 'rapp', 'sv', 'hld',
+    )
+    list_filter = ('team__league',)
+
+
 admin.site.register(YahooTeamLeagueForecast, YahooTeamLeagueForecastAdmin)
 admin.site.register(YahooMultiLeagueTeam, YahooMultiLeagueTeamAdmin)
 admin.site.register(YahooTeam, YahooTeamAdmin)
+admin.site.register(YahooRotoTeam, YahooRotoTeamAdmin)

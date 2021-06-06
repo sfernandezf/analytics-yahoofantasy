@@ -4,7 +4,9 @@ from django.dispatch import receiver
 from core.utils import changes_detected
 
 from players.models import YahooPlayerLeague
-from teams.models import YahooMultiLeagueTeam, YahooTeam, update_team_forecast
+from teams.models import (
+    YahooMultiLeagueTeam, YahooTeam, update_team_forecast, YahooRotoTeam
+)
 
 
 @receiver(post_save, sender=YahooTeam)
@@ -44,3 +46,12 @@ def on_yahoo_result_updated_update_multi_league(instance, **kwargs):
 #     """
 #     if 'team' in (kwargs.get('update_fields', []) or []):
 #         update_team_forecast()
+
+
+@receiver(post_save, sender=YahooTeam)
+def on_yahoo_team_created__create_roto(instance, **kwargs):
+    if instance._state.adding is False:
+        return
+    YahooPlayerLeague.objects.get_or_create(
+        team=instance
+    )

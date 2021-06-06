@@ -50,10 +50,8 @@
                   <tr>
                       <th scope="col">Team</th>
                       <th scope="col">League</th>
-                      <th scope="col">W</th>
-                      <th scope="col">D</th>
-                      <th scope="col">L</th>
-                      <th scope="col">PCT</th>
+                      <th scope="col">Total Points</th>
+                      <th scope="col">PCT W</th>
                       <th scope="col">R</th>
                       <th scope="col">H</th>
                       <th scope="col">HR</th>
@@ -84,15 +82,13 @@
                     <th scope="row">
                       <div class="media align-items-center">
                         <div class="media-body">
-                          <span class="mb-0 text-sm">{{ team.name }}</span>
+                          <span class="mb-0 text-sm">{{ team.team.name }}</span>
                         </div>
                       </div>
                     </th>
-                    <td>{{ team.league.name }}</td>
-                    <td>{{ team.w }}</td>
-                    <td>{{ team.d }}</td>
-                    <td>{{ team.l }}</td>
-                    <td>{{ team.pct }}</td>
+                    <td>{{ team.team.league.name }}</td>
+                    <td>{{ team.total_points }}</td>
+                    <td>{{ team.team.pct }}</td>
                     <td>{{ team.r }}</td>
                     <td>{{ team.h }}</td>
                     <td>{{ team.hr }}</td>

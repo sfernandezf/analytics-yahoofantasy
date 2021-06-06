@@ -23,9 +23,10 @@ from drf_yasg import openapi
 
 from django.urls import get_resolver, get_urlconf
 
+from articles.views import ArticleListView, ArticleDetailView
 from leagues.views import LeagueViews
 from results.views import ResultViews
-from teams.views import TeamViews
+from teams.views import TeamViews, RotoTeamViews
 
 
 schema_view = get_schema_view(
@@ -67,6 +68,9 @@ urlpatterns = [
     re_path(r"^standings/", LeagueViews.as_view()),
     re_path(r"^matchups/", ResultViews.as_view()),
     re_path(r"^stats/", TeamViews.as_view()),
+    re_path(r"^roto/", RotoTeamViews.as_view()),
+    re_path(r"^news/$", ArticleListView.as_view()),
+    path("news/<slug:slug>/", ArticleDetailView.as_view()),
     re_path(r'^.*$', RedirectView.as_view(url='/standings/', permanent=False), name='index')
 
 

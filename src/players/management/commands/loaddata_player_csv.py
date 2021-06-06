@@ -73,21 +73,21 @@ PITCHING_CSV_MAP = {
 }
 
 STATS_CSV = [
-    # {
-    #     "name": "zips",
-    #     "file_name": "zips_bat.csv",
-    #     "model": ZipsStats,
-    #     "mapping": BAT_CSV_MAP,
-    #     'stats': 'bat'
-    # },
-    # {
-    #     "name": "zips",
-    #     "file_name": "zips_pitch.csv",
-    #     "model": ZipsStats,
-    #     "mapping": PITCHING_CSV_MAP,
-    #     'stats': 'pit'
-    #
-    # },
+    {
+        "name": "zips",
+        "file_name": "zips_bat.csv",
+        "model": ZipsStats,
+        "mapping": BAT_CSV_MAP,
+        'stats': 'bat'
+    },
+    {
+        "name": "zips",
+        "file_name": "zips_pitch.csv",
+        "model": ZipsStats,
+        "mapping": PITCHING_CSV_MAP,
+        'stats': 'pit'
+
+    },
     {
         "name": "steamer",
         "file_name": "steamer_bat.csv",

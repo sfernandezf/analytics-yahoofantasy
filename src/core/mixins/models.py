@@ -93,7 +93,6 @@ class RemoteObjectModelMixin(models.Model):
                 else:
                     instance = model.objects.get(remote_id=child_remote)
                 instance.update_model_from_remote(**atts)
-
     
     def update_remote_from_model(self, **kwargs):
         field_mapping_reverse = { 

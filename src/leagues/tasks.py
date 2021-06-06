@@ -18,7 +18,7 @@ logger = logging.getLogger(__name__)
 
 def update_entire_league(**kwargs):
     logger.info('Start League Sync')
-    leagues = YahooLeague.objects.filter(is_active=True, name__icontains='Gaye')
+    leagues = YahooLeague.objects.filter(is_active=True)
     for league in leagues:
         league.update_model_from_remote(**kwargs)
 

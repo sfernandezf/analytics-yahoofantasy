@@ -1,7 +1,9 @@
 from django.contrib import admin
 
-from leagues.models import YahooLeague, YahooGame, YahooLeagueWeeks, \
-    YahooMultiYearLeague, Year, YahooOauthCredentials
+from leagues.models import (
+    YahooLeague, YahooGame, YahooLeagueWeeks, YahooMultiYearLeague, Year,
+    YahooOauthCredentials, RotoMultiLeagues
+)
 
 
 class YahooLeagueAdmin(admin.ModelAdmin):
@@ -20,6 +22,10 @@ class YahooLeagueWeeksAdmin(admin.ModelAdmin):
     )
 
 
+class RotoMultiLeaguesAdmin(admin.ModelAdmin):
+    filter_horizontal = ('leagues',)
+
+
 admin.site.register(YahooOauthCredentials)
 admin.site.register(Year)
 admin.site.register(YahooGame)
@@ -27,3 +33,4 @@ admin.site.register(YahooLeague)
 admin.site.register(YahooMultiYearLeague)
 
 admin.site.register(YahooLeagueWeeks, YahooLeagueWeeksAdmin)
+admin.site.register(RotoMultiLeagues, RotoMultiLeaguesAdmin)

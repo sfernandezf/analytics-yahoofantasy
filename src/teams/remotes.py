@@ -34,7 +34,7 @@ class YahooTeamRemote(YahooBaseRemoteObjectMixin):
                 continue
             try:
                 self.attrs[stat_name['stat']] = float(stat['value'])
-            except ValueError:
+            except (ValueError, TypeError):
                 continue
 
         return super().get_remote_attrs(**kwargs)

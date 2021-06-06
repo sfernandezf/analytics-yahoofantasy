@@ -1,0 +1,70 @@
+{% extends 'layouts/base.html' %}
+
+<!-- Specific CSS goes HERE -->
+{% block stylesheets %}
+<!--<link rel="stylesheet" href="https://cdn.datatables.net/responsive/2.2.1/css/responsive.dataTables.min.css">-->
+{% endblock stylesheets %}
+
+{% block title %} Tables {% endblock title %}
+
+{% block content %}
+    <!-- Header -->
+    <div class="header bg-primary pb-6">
+      <div class="container-fluid">
+        <div class="header-body">
+          <div class="row align-items-center py-4">
+            <div class="col-lg-6 col-7">
+              <h6 class="h2 text-white d-inline-block mb-0">News</h6>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <!-- Page content -->
+    <div class="container-fluid mt--6">
+      {% for article in object_list %}
+      <div class="row">
+        <div class="col">
+          <div class="card">
+            <div class="card-body">
+              <div class="row">
+                <div class="col-xl-3 order-xl-1">
+                  <img src={{ article.main_image.url }} alt="Image placeholder" class="card-img-top">
+                </div>
+                <div class="col-xl-9 order-xl-2">
+                  <h5 class="h2 card-title mb-0"><a href="/news/{{article.slug}}/">{{ article.title }}</a></h5>
+                  <small class="text-muted">by {{ article.author.first_name }} {{ article.author.last_name }} on {{ article.created_timestamp|date:"M jS Y" }}</small>
+                  <p class="card-text mt-4"> {{article.description_repr|linebreaks}} </p>
+                  <a href="/news/{{article.slug}}/" class="btn btn-link px-0">View article</a>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      {% endfor %}
+      {% include "includes/footer.html" %}
+    </div>
+
+{% endblock content %}
+
+<!-- Specific JS goes HERE -->
+{% block javascripts %}
+<script src="https://cdn.datatables.net/1.10.12/js/jquery.dataTables.min.js"></script>
+<script src="https://cdn.datatables.net/responsive/2.1.0/js/dataTables.responsive.min.js"></script>
+<script>
+		$(document).ready( function () {
+			$('#table')
+				.addClass( 'nowrap' )
+				.dataTable( {
+					columnDefs: [],
+					order: [[ 2, 'desc' ]],
+					searching: false,
+					paging: false,
+					info: false,
+					scrollX: true,
+					details: true
+				} );
+		} );
+</script>
+{% endblock javascripts %}

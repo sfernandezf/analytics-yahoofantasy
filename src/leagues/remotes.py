@@ -10,9 +10,9 @@ class YahooLeagueRemote(YahooBaseRemoteObjectMixin):
     def __init__(self):
         super().__init__()
         self.children_map = {
-            # 'weeks': 'get_weeks',
+            'weeks': 'get_weeks',
             'teams': 'get_teams',
-            # 'matchups': 'get_matchups'
+            'matchups': 'get_matchups'
         }
 
     def get_remote_attrs(self, **kwargs):

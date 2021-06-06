@@ -66,7 +66,7 @@ class StatsCalculatorMixin(models.Model):
 
             for player in players:
                 if position['name'] in ['RP', 'SP']:
-                    if not player.player.baseballavestats.ip:
+                    if not hasattr(player.player, 'baseballavestats') or not player.player.baseballavestats.ip:
                         continue
                     player_pct = pit_pct
                     ip += player.player.baseballavestats.ip * 6 / 162

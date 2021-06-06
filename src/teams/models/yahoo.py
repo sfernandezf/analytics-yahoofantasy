@@ -3,12 +3,11 @@ from django.contrib.postgres.fields import JSONField
 from django.utils.translation import ugettext_lazy as _
 
 from core.mixins.models import BaseModel, RemoteObjectModelMixin
-from leagues.models import YahooLeague, YahooMultiYearLeague
+from leagues.models import YahooLeague, YahooMultiYearLeague, RotoMultiLeagues
 from stats.models import StatsCalculatorMixin, YahooStats
 from teams.remotes import YahooTeamRemote
 
 from .mixins import TeamResultsMixin
-
 
 
 class YahooTeam(TeamResultsMixin, RemoteObjectModelMixin, BaseModel):
@@ -29,7 +28,8 @@ class YahooTeam(TeamResultsMixin, RemoteObjectModelMixin, BaseModel):
 
     league = models.ForeignKey(
         YahooLeague, verbose_name=_('Yahoo League'), on_delete=models.CASCADE,
-        related_name='teams', null=True, blank=True)
+        related_name='teams', null=True, blank=True
+    )
 
     waiver_priority = models.CharField(
         _('Waiver Priority'), max_length=1024, blank=True, null=True)
@@ -124,6 +124,27 @@ class YahooTeamLeagueForecast(TeamResultsMixin, StatsCalculatorMixin, BaseModel)
         return self.yahoo_team.players.objects
 
 
+class YahooRotoTeam(YahooStats):
+    class Meta:
+        constraints = [
+            models.UniqueConstraint(
+                fields=['team', 'league'], name='unique_team_league'
+            )
+        ]
+
+    team = models.ForeignKey(
+        YahooTeam, verbose_name=_('Yahoo Team'), on_delete=models.CASCADE,
+        related_name='roto_stats',
+        null=True, blank=True
+    )
+    league = models.ForeignKey(
+        RotoMultiLeagues, verbose_name=_('Yahoo League'), on_delete=models.CASCADE,
+        related_name='roto_teams', null=True, blank=True
+    )
+    total_points = models.FloatField(verbose_name=_('Total Points'), default=0)
+
+
+
 class YahooMultiLeagueTeam(TeamResultsMixin, BaseModel):
     def __str__(self):
         return "{}".format(self.name)
@@ -167,6 +188,7 @@ def update_results(team, rival_team, stat, w, l, d, stats_results):
             d += 1
             stats_results[stat['stat']]['d'] += 1
     return w, l, d, stats_results
+
 
 def update_team_forecast(**kwargs):
     teams = YahooTeamLeagueForecast.objects.all()

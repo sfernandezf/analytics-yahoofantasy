@@ -83,7 +83,8 @@ class YahooLeague(RemoteObjectModelMixin, BaseModel):
     is_visible = models.BooleanField(_('Is Visible'), default=True)
 
     domain = models.CharField(
-        _('Domain'), max_length=512, null=True, blank=True)
+        _('Domain'), max_length=512, null=True, blank=True
+    )
 
     name = models.CharField(
         _("League Name"), max_length=1024, blank=True, null=True)
@@ -202,6 +203,7 @@ class YahooMultiYearLeague(BaseModel):
         )
         return matchups
 
+
 class YahooLeagueWeeks(RemoteObjectModelMixin, BaseModel):
     def __str__(self):
         return "{}".format(self.week_number)
@@ -222,3 +224,15 @@ class YahooLeagueWeeks(RemoteObjectModelMixin, BaseModel):
     end_date = models.DateField(_('End Date'), blank=True, null=True)
 
     is_current_week = models.BooleanField(_('Is Current Week'), default=False)
+
+
+class RotoMultiLeagues(BaseModel):
+    name = models.CharField(
+        max_length=1024, null=True, blank=True, verbose_name=_('Name')
+    )
+    leagues = models.ManyToManyField('leagues.YahooLeague')
+    is_active = models.BooleanField(_('Is Active'), default=True)
+    domain = models.CharField(
+        _('Domain'), max_length=512, null=True, blank=True
+    )
+
